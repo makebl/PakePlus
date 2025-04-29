@@ -96,22 +96,41 @@
                 <div class="infoBox">
                     <div class="appBox">
                         <div class="appName">{{ pro.name }}</div>
-                        <div class="appVersion">{{ pro.version }}</div>
+                        <!-- <div class="appVersion">{{ pro.version }}</div> -->
                     </div>
                     <span class="appDesc">
-                        {{ pro.desktop.desc || 'this is a pakeplus project' }}
+                        {{ pro?.desktop?.desc || 'this is a pakeplus project' }}
                     </span>
                 </div>
             </div>
             <!-- new project -->
-            <div class="project newProject" @click="showBranchDialog">
+            <div class="project" @click="showBranchDialog">
                 <el-icon class="addIcon" :size="26"><Plus /></el-icon>
+                <img
+                    :src="pakePlusIcon"
+                    class="appIcon"
+                    alt="appIcon"
+                    style="opacity: 0"
+                />
+                <div class="infoBox">
+                    <div class="appBox">
+                        <div class="appName">&nbsp;</div>
+                        <div class="appVersion">&nbsp;</div>
+                    </div>
+                    <span class="appDesc">&nbsp;</span>
+                </div>
             </div>
         </div>
         <!-- version -->
         <div class="version" @click="goAbout">v{{ version }}</div>
         <!-- config github token -->
-        <el-dialog v-model="tokenDialog" width="500" center>
+        <el-dialog
+            v-model="tokenDialog"
+            width="500"
+            center
+            :show-close="false"
+            :close-on-click-modal="false"
+        >
             <template #header>
                 <div class="diaHeader">
                     <span>Github Token</span>
@@ -130,11 +149,22 @@
                     @keyup.enter="testToken(true)"
                 />
                 <el-button
+                    v-if="store.userInfo.login === ''"
                     @click="testToken(true)"
                     :loading="testLoading"
                     :type="store.userInfo.login !== '' ? 'success' : ''"
+                    class="testTokenBtn"
                 >
                     {{ t('testToken') }}
+                </el-button>
+                <el-button
+                    v-else
+                    @click="testToken(false)"
+                    :loading="testLoading"
+                    type="success"
+                    class="testTokenBtn"
+                >
+                    <el-icon><Check /></el-icon>
                 </el-button>
             </div>
             <template #footer>
@@ -189,7 +219,13 @@
             </template>
         </el-dialog>
         <!-- config new project name -->
-        <el-dialog v-model="branchDialog" width="400" center>
+        <el-dialog
+            v-model="branchDialog"
+            width="400"
+            center
+            :show-close="false"
+            :close-on-click-modal="false"
+        >
             <template #header>
                 <div class="diaHeader">
                     <span>{{ t('projectName') }}</span>
@@ -209,12 +245,34 @@
             </div>
             <template #footer>
                 <div class="dialog-footer">
-                    <el-button @click="branchDialog = false">{{
-                        t('cancel')
-                    }}</el-button>
+                    <el-button @click="branchDialog = false">
+                        {{ t('cancel') }}
+                    </el-button>
+                    <el-popconfirm
+                        v-if="proExist"
+                        hide-icon
+                        :title="t('confirmDelete')"
+                        cancel-button-type="info"
+                        placement="top"
+                        @confirm="delProject"
+                    >
+                        <template #reference>
+                            <el-button type="danger">
+                                {{ t('delete') }}
+                            </el-button>
+                        </template>
+                    </el-popconfirm>
+                    <el-button
+                        type="warning"
+                        disabled
+                        v-if="proExist"
+                        @click="branchDialog = false"
+                    >
+                        {{ t('sync') }}
+                    </el-button>
                     <el-button
                         type="primary"
-                        @click="creatProject()"
+                        @click="creatProject"
                         :loading="creatLoading"
                     >
                         {{ t('confirm') }}
@@ -227,12 +285,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import githubApi from '@/apis/github'
-import { ElMessage } from 'element-plus'
-import { usePakeStore } from '@/store'
-import { Plus } from '@element-plus/icons-vue'
+import { usePPStore } from '@/store'
+import VConsole from 'vconsole'
+import { Plus, Check } from '@element-plus/icons-vue'
 import {
     urlMap,
     openUrl,
@@ -242,10 +300,13 @@ import {
     createBranch,
     webBranch,
     mainBranch,
-    getBuildYml,
     getCustomJsFetch,
     supportPP,
     getBuildYmlFetch,
+    oneMessage,
+    upstreamUser,
+    ppRepo,
+    djb2Hash,
 } from '@/utils/common'
 import ppconfig from '@root/scripts/ppconfig.json'
 import pakePlusIcon from '@/assets/images/pakeplus.png'
@@ -254,15 +315,22 @@ import { getCurrentWindow } from '@tauri-apps/api/window'
 import packageJson from '../../package.json'
 
 const router = useRouter()
-const store = usePakeStore()
+const store = usePPStore()
 const { t, locale } = useI18n()
-// const token = ref(localStorage.getItem('token') || '')
 const version = ref(packageJson.version)
 const tokenDialog = ref(false)
 const userInfoDialog = ref(false)
 const branchDialog = ref(false)
 const branchName = ref('')
 const testLoading = ref(false)
+// button loading
+const creatLoading = ref(false)
+// proExist
+const proExist = ref(false)
+
+watch(branchName, (newVal) => {
+    proExist.value = false
+})
 
 const chageTheme = async (theme: string) => {
     if (theme === 'light') {
@@ -282,7 +350,7 @@ const chageTheme = async (theme: string) => {
 // copy token
 const copyToken = () => {
     navigator.clipboard.writeText(store.token)
-    ElMessage.success(t('copySuccess'))
+    oneMessage.success(t('copySuccess'))
 }
 
 // logout
@@ -295,7 +363,7 @@ const logout = async () => {
 // del pakeplus!
 const delPakePlus = async () => {
     await githubApi.deleteProgect(store.userInfo.login, 'PakePlus')
-    // await githubApi.deleteProgect(store.userInfo.login, 'PakePlus-iOS')
+    await githubApi.deleteProgect(store.userInfo.login, 'PakePlus-iOS')
     await githubApi.deleteProgect(store.userInfo.login, 'PakePlus-Android')
     localStorage.removeItem('projectList')
     localStorage.removeItem('releases')
@@ -354,7 +422,8 @@ const showBranchDialog = () => {
     // token.value && getCommitSha()
     // checkout has github token
     if (store.token === '') {
-        ElMessage.error(t('configToken'))
+        // oneMessage.error(t('configToken'))
+        console.log(t('configToken'))
     } else {
         getMainSha('PakePlus')
         getWebSha('PakePlus')
@@ -381,6 +450,7 @@ const cancelToken = () => {
 // check token and confirm token is ok
 const testToken = async (tips: boolean = true) => {
     if (localStorage.getItem('token') !== store.token || tips) {
+        console.log('test token tips')
         testLoading.value = true
         try {
             const res: any = await githubApi.gitUserInfo(store.token)
@@ -389,24 +459,25 @@ const testToken = async (tips: boolean = true) => {
                 localStorage.setItem('token', store.token)
                 store.setUser(res.data)
                 if (res.data.login !== 'Sjj1024') {
-                    forkStartShas(tips)
+                    await forkStartShas(tips)
                 } else {
                     await commitShas(tips)
                 }
             } else {
                 localStorage.clear()
                 store.setUser({ login: '' })
-                ElMessage.error(t('tokenError'))
+                oneMessage.error(t('tokenError'))
                 testLoading.value = false
             }
         } catch (error) {
             localStorage.clear()
             store.setUser({ login: '' })
             console.error('testToken error', error)
-            ElMessage.error(t('networkError'))
+            oneMessage.error(t('networkError'))
             testLoading.value = false
         }
     } else {
+        console.log('test token tips false')
         tokenDialog.value = false
     }
 }
@@ -420,8 +491,8 @@ const commitShas = async (tips: boolean = true) => {
         const res = await Promise.all([
             getMainSha('PakePlus'),
             getWebSha('PakePlus'),
-            // getMainSha('PakePlus-iOS'),
-            // getWebSha('PakePlus-iOS'),
+            getMainSha('PakePlus-iOS'),
+            getWebSha('PakePlus-iOS'),
             getMainSha('PakePlus-Android'),
             getWebSha('PakePlus-Android'),
         ])
@@ -432,25 +503,27 @@ const commitShas = async (tips: boolean = true) => {
                     // delete build.yml
                     let deleteRes = true
                     if (store.noSjj1024) {
-                        deleteRes = await Promise.all([
-                            deleteBuildYml(mainBranch, 'PakePlus'),
-                            // deleteBuildYml(mainBranch, 'PakePlus-iOS'),
-                            deleteBuildYml(mainBranch, 'PakePlus-Android'),
-                        ]).then((res) => {
-                            console.log('deleteBuildYml res', res)
-                            return res.every((item) => item)
-                        })
+                        const pp = await deleteBuildYml(mainBranch, 'PakePlus')
+                        const ppa = await deleteBuildYml(
+                            mainBranch,
+                            'PakePlus-Android'
+                        )
+                        const ppi = await deleteBuildYml(
+                            mainBranch,
+                            'PakePlus-iOS'
+                        )
+                        deleteRes = pp && ppa && ppi
                     }
                     if (deleteRes) {
                         testLoading.value = false
                         if (!tips) {
                             tokenDialog.value = false
                         } else {
-                            ElMessage.success(t('tokenOk'))
+                            oneMessage.success(t('tokenOk'))
                         }
                     } else {
+                        localStorage.clear()
                         store.setUser({ login: '' })
-                        ElMessage.error(t('noWorkflowPermission'))
                         testLoading.value = false
                         return false
                     }
@@ -471,8 +544,9 @@ const commitShas = async (tips: boolean = true) => {
         }
     }
     if (getCount >= 6) {
+        localStorage.clear()
         store.setUser({ login: '' })
-        ElMessage.error(t('initError'))
+        oneMessage.error(t('initError'))
     }
     testLoading.value = false
     return false
@@ -483,7 +557,7 @@ const forkStartShas = async (tips: boolean = true) => {
     // fork action is async
     const forkRes: any = Promise.all([
         forkPakePlus('PakePlus'),
-        // forkPakePlus('PakePlus-iOS'),
+        forkPakePlus('PakePlus-iOS'),
         forkPakePlus('PakePlus-Android'),
     ]).then((res) => {
         console.log('forkRes', res)
@@ -495,7 +569,9 @@ const forkStartShas = async (tips: boolean = true) => {
         console.error('fork error', forkRes)
     }
     await supportPP()
-    commitShas(tips)
+    // sync all branch
+    await syncAllBranch()
+    await commitShas(tips)
 }
 
 // fork pakeplus-android and pakeplus-ios
@@ -511,12 +587,12 @@ const forkPakePlus = async (repo: string = 'PakePlus') => {
         // maybe account has locked
         store.setUser({ login: '' })
         testLoading.value = false
-        ElMessage.error(forkRes.data.message || t('tokenError'))
+        oneMessage.error(forkRes.data.message || t('tokenError'))
         return false
     } else {
         store.setUser({ login: '' })
         testLoading.value = false
-        ElMessage.error(forkRes.data.message || t('tokenError'))
+        oneMessage.error(forkRes.data.message || t('tokenError'))
         return false
     }
 }
@@ -537,6 +613,7 @@ const getMainSha = async (repo: string = 'PakePlus') => {
         } else if (repo === 'PakePlus-Android') {
             store.shaInfo.androidMain = res.data.sha
         }
+        localStorage.setItem('shaInfo', JSON.stringify(store.shaInfo))
         return true
     } else {
         return false
@@ -565,13 +642,40 @@ const getWebSha = async (repo: string = 'PakePlus') => {
     }
 }
 
-// button loading
-const creatLoading = ref(false)
+// open vconsole
+const openDebug = () => {
+    const theme: any = localStorage.getItem('theme') || 'light'
+    const _ = new VConsole({ theme: theme })
+}
+
+// delete project confirm
+const delProject = () => {
+    if (
+        branchName.value === 'main' ||
+        branchName.value === 'dev' ||
+        branchName.value === 'web' ||
+        branchName.value === 'web2'
+    ) {
+        oneMessage.error(t('cantDelete'))
+        return
+    } else {
+        store.delProject(branchName.value)
+        branchName.value = ''
+        oneMessage.success(t('deleteSuccess'))
+    }
+}
 
 // creat project branch,
 const creatProject = async () => {
     creatLoading.value = true
-    // update build.yml file content
+    proExist.value = false
+    if (branchName.value === 'ppdebug') {
+        openDebug()
+        branchName.value = ''
+        creatLoading.value = false
+        branchDialog.value = false
+        return
+    }
     // token.value && (await uploadBuildYml())
     if (branchName.value && /^[A-Za-z][A-Za-z0-9]*$/.test(branchName.value)) {
         const customJs = await getCustomJsFetch()
@@ -622,12 +726,12 @@ const creatProject = async () => {
                         'PakePlus-Android',
                         store.shaInfo.androidWeb
                     ),
-                    // createBranch(
-                    //     store.userInfo.login,
-                    //     branchName.value,
-                    //     'PakePlus-iOS',
-                    //     store.shaInfo.iosWeb
-                    // ),
+                    createBranch(
+                        store.userInfo.login,
+                        branchName.value,
+                        'PakePlus-iOS',
+                        store.shaInfo.iosWeb
+                    ),
                 ]).then((res) => {
                     console.log('createBranch res', res)
                     return res.every((item) => item)
@@ -635,20 +739,21 @@ const creatProject = async () => {
                 if (createRes) {
                     router.push('/edit')
                 } else {
-                    ElMessage.error(t('createBranchError'))
+                    oneMessage.error(t('createBranchError'))
                     creatLoading.value = false
                 }
             } else if (res.status === 200) {
                 creatLoading.value = false
-                ElMessage.success(t('projectExist'))
+                proExist.value = true
+                oneMessage.success(t('projectExist'))
                 // router.push('/publish')
             } else if (res.status === 401) {
-                ElMessage.error(t('tokenError'))
+                oneMessage.error(t('tokenError'))
                 creatLoading.value = false
             } else {
                 creatLoading.value = false
                 console.error('branchInfo error', res)
-                ElMessage.error(
+                oneMessage.error(
                     `${t('creatProjectError')}: ${res.data.message}`
                 )
             }
@@ -663,7 +768,7 @@ const creatProject = async () => {
             router.push('/edit')
         }
     } else {
-        ElMessage.error(t('englishName'))
+        oneMessage.error(t('englishName'))
         creatLoading.value = false
     }
 }
@@ -680,6 +785,7 @@ const uploadBuildYml = async (
         body: 'This is a workflow to help you automate the publishing of your PakePlus project to GitHub Packages.',
     })
     // create build.yml file content
+    await new Promise((resolve) => setTimeout(resolve, 1000))
     const createRes: any = await githubApi.createBuildYml(
         store.userInfo.login,
         repo,
@@ -723,6 +829,7 @@ const deleteBuildYml = async (
             return true
         } else {
             console.error('deleteBuildYml error', deleteRes)
+            oneMessage.error(deleteRes.message || t('noWorkflowPermission'))
             return false
         }
     } else if (shaRes.status === 404) {
@@ -755,17 +862,157 @@ const getPakePlusInfo = async () => {
     version.value = pakeVersion
 }
 
+// creat branch by upstream branch
+const creatBranchByUpstream = async (repo: string, branch: string) => {
+    console.log('creatBranchByUpstream', repo, branch)
+    const upRes: any = await githubApi.getUpstreamCommit(
+        upstreamUser,
+        repo,
+        branch
+    )
+    console.log('upRes', upRes)
+    const upBranchSha = upRes.data.object.sha
+    // create branch
+    const createRes: any = await githubApi.createBranch(store.userName, repo, {
+        ref: `refs/heads/${branch}`,
+        sha: upBranchSha,
+    })
+    console.log('createRes', createRes)
+    if (createRes.status === 201) {
+        console.log('createBranchByUpstream success', branch)
+    } else {
+        console.error('createBranchByUpstream error', createRes)
+    }
+}
+
+// force update branch
+const forceUpdateBranch = async (repo: string, branch: string) => {
+    console.log('forceUpdateBranch', repo, branch)
+    // get upstream branch last commit
+    const upRes: any = await githubApi.getUpstreamCommit(
+        upstreamUser,
+        repo,
+        branch
+    )
+    console.log('upRes', upRes)
+    const upBranchSha = upRes.data.object.sha
+    // force update branch
+    const forceUpdateRes: any = await githubApi.forceUpdateBranch(
+        store.userName,
+        repo,
+        branch,
+        {
+            sha: upBranchSha,
+            force: true,
+        }
+    )
+    console.log('forceUpdateRes', forceUpdateRes)
+    if (forceUpdateRes.status === 200) {
+        console.log('forceUpdateBranch success', branch)
+    } else {
+        console.error('forceUpdateBranch error', forceUpdateRes)
+    }
+}
+// merge branch and commit(allways use upstream branch)
+const mergeBranch = async (repo: string, branch: string) => {
+    console.log('mergeBranch', repo, branch)
+    const mergeRes: any = await githubApi.mergeUpstreamBranch(
+        store.userName,
+        repo,
+        {
+            base: branch,
+            head: `${upstreamUser}:${branch}`,
+            commit_message: `Auto-sync with upstream ${branch} by PakePlus`,
+        }
+    )
+    console.log('mergeRes', mergeRes)
+    if (mergeRes.status === 201) {
+        console.log('mergeBranch success', branch)
+    } else if (mergeRes.status === 204) {
+        console.log('branch status is up to date', branch)
+    } else {
+        console.error('mergeBranch error', mergeRes)
+        await forceUpdateBranch(repo, branch)
+    }
+}
+
+// sync branch by upstream branch
+const syncBranch = async (repo: string, branch: string) => {
+    console.log('syncBranch', repo, branch)
+    // create branch by upstream branch
+    await creatBranchByUpstream(repo, branch)
+    // merge branch and commit(allways use upstream branch)
+    await mergeBranch(repo, branch)
+}
+
+// sync upstrame all branch
+const syncAllBranch = async () => {
+    if (store.token) {
+        for (const repo of ppRepo) {
+            console.log('syncAllBranch', repo)
+            const upRes: any = await githubApi.getAllBranchs(upstreamUser, repo)
+            console.log('up branchs Res', upRes)
+            const upBranchs = upRes.data?.map((item: any) => {
+                return {
+                    name: item.name,
+                    sha: item.commit.sha,
+                }
+            })
+            console.log('upBranchs', upBranchs)
+            const userRes: any = await githubApi.getAllBranchs(
+                store.userName,
+                repo
+            )
+            console.log('user branchs Res', userRes)
+            const userBranchs = userRes.data?.map((item: any) => {
+                return {
+                    name: item.name,
+                    sha: item.commit.sha,
+                }
+            })
+            console.log('userBranchs', userBranchs)
+            for (const branch of upBranchs) {
+                // check branch is exist in userBranchs and sha is same
+                const userBranch = userBranchs.find(
+                    (item: any) => item.name === branch.name
+                )
+                // if sha not same or branch not exist, sync branch
+                if (!userBranch || userBranch.sha !== branch.sha) {
+                    await syncBranch(repo, branch.name)
+                }
+            }
+        }
+    }
+}
+
 onMounted(() => {
     if (isTauri) {
         const window = getCurrentWindow()
         window.setTitle('PakePlus')
     } else {
-        ElMessage.error(t('webNotStable'))
+        oneMessage.error(t('webNotStable'))
     }
     checkUpdate()
     getPakePlusInfo()
+    syncAllBranch()
 })
 </script>
+
+<style>
+.el-popconfirm__action {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.el-popconfirm__main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+</style>
 
 <style lang="scss" scoped>
 .homeBox {
@@ -921,14 +1168,16 @@ onMounted(() => {
         margin-top: 20px;
 
         .project {
-            height: 200px;
+            height: 100%;
+            // min-height: 200px;
             border-radius: 10px;
             padding: 10px 10px 0 10px;
-            margin-bottom: 10px;
+            // margin-bottom: 10px;
             background-color: var(--project-bg);
             overflow: hidden;
             transition: box-shadow 0.2s, transform 0.2s;
             border: 1px solid var(--project-border);
+            position: relative;
 
             &:hover {
                 cursor: pointer;
@@ -939,8 +1188,10 @@ onMounted(() => {
                     transform: scale(1.02);
                 }
 
-                .infoBox {
-                    transform: scale(1.01);
+                .addIcon {
+                    color: var(--box-shadow);
+                    font-size: 36px !important;
+                    font-weight: bold;
                 }
             }
 
@@ -952,6 +1203,15 @@ onMounted(() => {
                 border-radius: 20px;
                 background-color: var(--project-bg);
                 transition: transform 0.2s ease;
+            }
+
+            .addIcon {
+                color: var(--box-shadow);
+                transition: all 0.2s ease;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
             }
 
             .appPreview {
@@ -977,19 +1237,25 @@ onMounted(() => {
                         overflow: hidden;
                         text-overflow: ellipsis;
                         white-space: nowrap;
+                        font-weight: bold;
                     }
+
+                    // .appVersion {
+                    //     font-weight: bold;
+                    // }
                 }
 
                 .appDesc {
                     max-width: 124px;
                     display: -webkit-box;
-                    font-size: small;
+                    font-size: 12px;
                     color: gray;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     -webkit-line-clamp: 2;
                     line-clamp: 2;
                     -webkit-box-orient: vertical;
+                    margin-top: 6px;
                 }
             }
         }
@@ -1015,6 +1281,10 @@ onMounted(() => {
             .addIcon {
                 color: var(--box-shadow);
                 transition: all 0.2s ease;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
             }
         }
     }
@@ -1044,6 +1314,10 @@ onMounted(() => {
         justify-content: center;
         align-items: center;
     }
+}
+
+.testTokenBtn {
+    width: 58px;
 }
 
 .diaHeader {
