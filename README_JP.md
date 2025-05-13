@@ -9,6 +9,14 @@
 <h1 align="center">PakePlus</h1>  
 <p align="center"><strong>9分で任意のウェブページをデスクトップアプリやモバイルアプリに変換。シンプルで使いやすい。</strong></p>
 
+<p align="center">
+    <a href="https://github.com/Sjj1024/PakePlus/releases"><img src="https://img.shields.io/github/v/release/Sjj1024/PakePlus?style=flat-square&logo=github" alt="Release"></a>
+    <a href="https://github.com/Sjj1024/PakePlus/stargazers"><img src="https://img.shields.io/github/stars/Sjj1024/PakePlus?style=flat-square&logo=github" alt="Stars"></a>
+    <a href="https://github.com/Sjj1024/PakePlus/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/Sjj1024/PakePlus/build.yml?style=flat-square&logo=github" alt="Build"></a>
+    <a href="https://github.com/Sjj1024/PakePlus/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Sjj1024/PakePlus?style=flat-square&logo=github" alt="License"></a>
+    <a href="https://hellogithub.com/repository/d148f8fac78b45fe9b94c82757c3f86b" target="_blank"><img src="https://api.hellogithub.com/v1/widgets/recommend.svg?rid=d148f8fac78b45fe9b94c82757c3f86b&claim_uid=LXfeQOxRDEmSUGC&theme=small" alt="Featured｜HelloGitHub"></a>
+</p>
+
 <div align="left">PakePlus は Mac、Windows、および Linux に対応しており、Android と iOS も間もなくサポート予定です。ローカルに複雑な依存環境をインストールする必要はなく、Github トークンだけで利用できます。また、PakePlus 自体のサイズはわずか約5MBです。最新バージョンについては<a href="[#popular-packages](https://github.com/Sjj1024/PakePlus/releases)">リリースページ</a>をご確認ください。また、PakePlus Web 版も利用できます。<a href="URL_ADDRESS また、PakePlus Web 版も利用できます。<a href="https://pakeplus.pages.dev" target="_blank">PakePlus Web</a>。
 <a href="#popular-packages">人気パッケージ</a>や<a href="#development">カスタム開発</a>については README をご覧ください。<a href="https://github.com/Sjj1024/PakePlus/discussions">ディスカッションエリア</a>でご意見をお待ちしています。</div>
 
@@ -16,19 +24,33 @@ https://github.com/user-attachments/assets/b88bf541-0b26-4020-9eec-da79e1734fc9
 
 ## 特徴
 
--   🎐 Electron パッケージの約 20 分の 1 のサイズ（約 5MB！）
--   🚀 Rust と Tauri を活用し、JS ベースのフレームワークよりも軽量で高速。
--   📦 便利な機能パックが豊富に内蔵—ショートカット、イマーシブウィンドウ、ミニマルカスタマイズをサポート。
--   👻 PakePlus は単なるツールであり、古いパッケージング方法の代わりに Tauri を使用しています（PWA も十分に使えます）。
--   🤗 PakePlus は操作が簡単で、GitHub トークンだけでデスクトップアプリを取得可能。
--   🌹 ローカルに複雑な依存環境をインストールする必要はなく、Github Action によるクラウド自動パッケージングが可能。
--   🧑‍🤝‍🧑 国際化対応、グローバルユーザーに親しみやすく、システムの言語を自動的に追従。
--   💡 カスタム js 注入をサポート。ページに独自の js コードを注入できます。
--   🎨 デザインがより美しく、使いやすくなりました。
--   📡 ブラウザーで直接使用することもできますが、クライアント機能がより強力で、推奨されます。
--   🔐 データセキュリティ。あなたのトークンはあなたのローカル環境にのみ保存され、サーバーにアップロードされることはありません。あなたのプロジェクトもあなた自身の Git リポジトリに安全に保存されています。
--   🍀 静的ファイルのパッケージングをサポートします。dist ディレクトリや index.html を入れるだけでクライアントになります。ウェブサイトに限定する必要はありません。
--   🐞 デバッグモードをサポートします。プレビュー中や公開中にバグを発見し、修正します。
+-   🎐 Electron より約 20 倍小さい（5MB 未満！）、そして 10 倍高速。
+-   🚀 Rust Tauri ベースで構築されており、JS ベースのフレームワークより軽量かつ高速。
+-   📦 豊富な機能を内蔵 — ショートカット、没入型ウィンドウ、ミニマルなカスタマイズに対応。
+-   👻 PakePlus はミニマルなソフトウェアで、旧来のパッケージ方法を Tauri に置き換えてクロスプラットフォームのデスクトップアプリを実現。
+-   📲 Android および iOS アプリをネイティブフレームワークでパッケージ、Tauri2 よりさらに軽く高速。
+-   🤗 操作が簡単、GitHub トークンが 1 つあればデスクトップアプリを取得可能。
+-   🌹 複雑な依存環境をローカルにインストールする必要なし、GitHub Actions によるクラウド自動パッケージング。
+-   🧑‍🤝‍🧑 国際化に対応、システムの言語に自動的に追従。
+-   💡 カスタム JS の注入が可能、自作の JS をページに注入して使用可能。
+-   🎨 UI が美しく、初心者に優しく、快適な使い心地、中国語名のパッケージも対応。
+-   📡 ウェブから直接使用可能だが、クライアント版の方が機能豊富でおすすめ。
+-   🔐 データは安全、トークンはローカルのみ保存、プロジェクトも自分の Git に安全に保管。
+-   🍀 静的ファイルのパッケージングをサポート、Vue/React の `dist` や `index.html` を入れるだけでクライアントに。
+-   🐞 デバッグモードに対応、プレビューでもリリースでもバグを見つけて解消できる。
+-   💬 使用中に問題があれば、いつでも技術コミュニティに参加して相談可能。
+
+## 使用シーン
+
+-   あなたのウェブサイトをすぐにデスクトップアプリにして、より高級感を出したいとき。
+-   Vue/React プロジェクトを持っていて、サーバーを購入せずにデスクトップ化したいとき。
+-   Cocos ゲームをクロスプラットフォームで動作させたい？問題なし。
+-   Unity プロジェクトもクロスプラットフォーム化したい？もちろん可能。
+-   サイトのアドレスを隠したい、スクレイピングや拡散を防止したい。
+-   社内専用サイトで、クライアントからのみアクセスさせたい場合。
+-   サイトをカスタムクライアントにして、自動化や便利機能を JS 注入で追加したい。
+-   広告が多すぎるサイトをクリーンに使いたい？JS で非表示にしよう。
+-   Tauri2 を使いたいが、環境構築が大変？PakePlus で解決！
 
 ## 人気パッケージ
 
@@ -151,3 +173,8 @@ pnpm run build
  <p align="center">
          <img src="https://github.com/Sjj1024/PakePlus/raw/main/docs/static/imgs//pay.png" />
  </p>
+
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Sjj1024/PakePlus&type=Date)](https://www.star-history.com/#Sjj1024/PakePlus&Date)

@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import githubApi from '@/apis/github'
 import ppconfig from '@root/scripts/ppconfig.json'
 
-export const usePakeStore = defineStore('pakeplus', {
+export const usePPStore = defineStore('pakeplus', {
     state: () => {
         return {
             // 用户信息
@@ -45,14 +45,16 @@ export const usePakeStore = defineStore('pakeplus', {
                       updated_at: '2024-08-22T04:54:05Z',
                   },
             // sha info
-            shaInfo: {
-                desktopMain: '',
-                desktopWeb: '',
-                iosMain: '',
-                iosWeb: '',
-                androidMain: '',
-                androidWeb: '',
-            },
+            shaInfo: localStorage.getItem('shaInfo')
+                ? JSON.parse(localStorage.getItem('shaInfo') as string)
+                : {
+                      desktopMain: '',
+                      desktopWeb: '',
+                      iosMain: '',
+                      iosWeb: '',
+                      androidMain: '',
+                      androidWeb: '',
+                  },
             // 当前项目
             currentProject: localStorage.getItem('currentProject')
                 ? JSON.parse(localStorage.getItem('currentProject') as string)
@@ -109,12 +111,20 @@ export const usePakeStore = defineStore('pakeplus', {
                   } as { [key: string]: any }),
             //  token
             token: localStorage.getItem('token') || '',
-            //  重新预览倒计时
+            //  review second
             previewSecond: 60,
-            // 预览静态文件夹路径
+            // preview html path
             previewPath: '',
             // timer
             timer: 0 as any,
+            // upstream repo commit md5
+            upCommitMd5: localStorage.getItem('upCommitMd5')
+                ? JSON.parse(localStorage.getItem('upCommitMd5') as string)
+                : ({
+                      PakePlus: '',
+                      'PakePlus-Android': '',
+                      'PakePlus-iOS': '',
+                  } as { [key: string]: any }),
             age: 18,
             sex: '男',
         }
@@ -125,6 +135,12 @@ export const usePakeStore = defineStore('pakeplus', {
         },
         noSjj1024: (state) => {
             return state.userInfo.login !== 'Sjj1024'
+        },
+        userName: (state) => {
+            return state.userInfo.login
+        },
+        isDark: (_) => {
+            return localStorage.getItem('theme') === 'dark'
         },
         isRelease: (state) => {
             console.log('isReleaseisRelease', state.currentRelease)
@@ -144,6 +160,8 @@ export const usePakeStore = defineStore('pakeplus', {
                     id: state.currentProject.appid + '.ios',
                     webUrl: state.currentProject.url,
                     isHtml: state.currentProject.isHtml,
+                    pubBody: state.currentProject.android.pubBody,
+                    debug: state.currentProject.android.debug,
                 },
                 android: {
                     ...state.currentProject.android,
@@ -163,17 +181,12 @@ export const usePakeStore = defineStore('pakeplus', {
                     webUrl: state.currentProject.url,
                     isHtml: state.currentProject.isHtml,
                 },
+                icon: '',
             }
         },
     },
     actions: {
         actionSecond() {
-            console.log(
-                'actionSecond',
-                this.previewSecond,
-                this.previewPath,
-                this.currentProject.htmlPath
-            )
             if (
                 this.previewPath !== '' &&
                 this.currentProject.htmlPath === this.previewPath
@@ -222,11 +235,23 @@ export const usePakeStore = defineStore('pakeplus', {
                 JSON.stringify(this.projectList)
             )
         },
-        delProject(project: Project) {
+        delProject(projectName: string) {
+            // delete branch
+            githubApi.deleteBranch(this.userInfo.login, 'PakePlus', projectName)
+            githubApi.deleteBranch(
+                this.userInfo.login,
+                'PakePlus-Android',
+                projectName
+            )
+            githubApi.deleteBranch(
+                this.userInfo.login,
+                'PakePlus-IOS',
+                projectName
+            )
             // delete release
-            this.setRelease(project.name, { id: 0 })
+            this.setRelease(projectName, { id: 0 })
             const exist = this.projectList.findIndex((item: Project) => {
-                return item.name === project.name
+                return item.name === projectName
             })
             if (exist !== -1) {
                 this.projectList.splice(exist, 1)
@@ -236,12 +261,13 @@ export const usePakeStore = defineStore('pakeplus', {
                 )
             }
         },
-        setRelease(proName: string, info: any) {
-            if (info && info.id !== 0) {
+        setRelease(proName: string, releaseData: any) {
+            console.log('setRelease', proName, releaseData)
+            if (releaseData && releaseData.id !== 0) {
                 // 判断this.releases[proName]是否存在
                 if (this.releases[proName]) {
                     // 如果存在，则先过滤重复id的assets,然后合并assets
-                    const assets = info.assets.filter(
+                    const assets = releaseData.assets.filter(
                         (item: any) =>
                             !this.releases[proName].assets.some(
                                 (asset: any) => asset.id === item.id
@@ -253,14 +279,12 @@ export const usePakeStore = defineStore('pakeplus', {
                         ...assets,
                     ]
                 } else {
-                    this.releases[proName] = info
+                    this.releases[proName] = releaseData
                 }
             } else {
                 delete this.releases[proName]
             }
-            if (proName === this.currentProject.name) {
-                this.currentRelease = info
-            }
+            this.currentRelease = this.releases[proName]
             localStorage.setItem('releases', JSON.stringify(this.releases))
         },
         async setCurrentRelease() {
@@ -270,11 +294,13 @@ export const usePakeStore = defineStore('pakeplus', {
                 this.releases[this.currentProject.name].id !== 0
             ) {
                 this.currentRelease = this.releases[this.currentProject.name]
-                this.getRelease('PakePlus')
-                this.getRelease('PakePlus-Android')
+                await this.getRelease('PakePlus')
+                await this.getRelease('PakePlus-iOS')
+                await this.getRelease('PakePlus-Android')
             } else {
                 this.currentRelease = { id: 0 }
                 await this.getRelease('PakePlus')
+                await this.getRelease('PakePlus-iOS')
                 await this.getRelease('PakePlus-Android')
             }
         },
@@ -295,7 +321,7 @@ export const usePakeStore = defineStore('pakeplus', {
                     repo,
                     this.currentProject.name
                 )
-                console.log('releaseRes', releaseRes)
+                console.log('releaseRes', repo, releaseRes)
                 if (releaseRes.status === 200) {
                     const assets = releaseRes.data.assets.filter(
                         (item: any) => {
@@ -317,43 +343,10 @@ export const usePakeStore = defineStore('pakeplus', {
                             }
                         }),
                     }
+                    console.log('releaseData', repo, releaseData)
                     this.setRelease(this.currentProject.name, releaseData)
-                    this.currentRelease = releaseData
                     return releaseData
                 }
-                // if (
-                //     releaseRes.status === 200 &&
-                //     releaseRes.data.assets.length >= 3
-                // ) {
-                //     // filter current project version
-                //     const assets = releaseRes.data.assets.filter(
-                //         (item: any) => {
-                //             return (
-                //                 item.name.includes(
-                //                     this.currentProject.version
-                //                 ) || item.name.includes('tar')
-                //             )
-                //         }
-                //     )
-                //     const releaseData = {
-                //         ...releaseRes.data,
-                //         assets: assets.map((asset: any) => {
-                //             return {
-                //                 ...asset,
-                //                 updated_at: convertToLocalTime(
-                //                     asset.updated_at
-                //                 ),
-                //             }
-                //         }),
-                //     }
-                //     this.setRelease(this.currentProject.name, releaseData)
-                //     this.currentRelease = releaseData
-                //     return releaseData
-                // } else {
-                //     console.error('releaseRes error', releaseRes)
-                //     this.setRelease(this.currentProject.name, { id: 0 })
-                //     return null
-                // }
             }
         },
         // delete release
@@ -388,7 +381,7 @@ export const usePakeStore = defineStore('pakeplus', {
                     repo,
                     {
                         message: 'update icon from pakeplus',
-                        sha: iconSha.data.sha,
+                        sha: iconSha?.data?.sha,
                         branch: this.currentProject.name,
                         content: iconBase64,
                     }
@@ -454,6 +447,14 @@ export const usePakeStore = defineStore('pakeplus', {
             yield 'update ppandroid.json'
             // 5. dispatch action
             yield 'dispatch action'
+        },
+        // update upCommitMd5
+        updateUpCommitMd5(repo: string, repoHash: any) {
+            this.upCommitMd5[repo] = repoHash
+            localStorage.setItem(
+                'upCommitMd5',
+                JSON.stringify(this.upCommitMd5)
+            )
         },
     },
 })

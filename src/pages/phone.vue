@@ -1,10 +1,5 @@
 <template>
-    <div
-        class="editBox"
-        :class="{ isWeb: !isTauri }"
-        v-loading.fullscreen.lock="buildLoading"
-        :element-loading-text="t('preCheck') + '...'"
-    >
+    <div class="editBox" :class="{ isWeb: !isTauri }">
         <div class="homeHeader">
             <div>
                 <div class="headerTitle">
@@ -13,10 +8,10 @@
                         <span>{{ t('back') }}</span>
                     </div>
                     <el-divider direction="vertical" />
-                    <span> APP配置 </span>
+                    <span> {{ t('appProject') }} </span>
                 </div>
                 <div class="toolTips">
-                    <span> 移动端手机APP（iOS/Android）的配置信息 </span>
+                    <span> {{ t('appProjectTips') }} </span>
                     <el-icon
                         class="document"
                         @click="openUrl(urlMap.configdoc)"
@@ -45,8 +40,8 @@
                 >
                     <Paperclip />
                 </el-icon>
-                <el-icon :size="22" class="desktop">
-                    <!-- <ForkSpoon /> -->
+                <el-icon :size="22" class="desktop" @click="morePhoneConfig">
+                    <Orange />
                 </el-icon>
             </div>
         </div>
@@ -220,7 +215,7 @@
                         </el-icon>
                     </el-form-item>
                     <el-form-item
-                        label="安全区域"
+                        :label="t('safeArea')"
                         prop="tauriApi"
                         class="formItem"
                     >
@@ -242,7 +237,7 @@
                 <!-- app header -->
                 <div class="inLine checkBox">
                     <el-form-item
-                        label="APP标头"
+                        :label="t('appHeader')"
                         prop="icon"
                         class="formItem"
                         :style="isTauri ? 'width: unset' : 'width: unset'"
@@ -254,7 +249,7 @@
                         />
                     </el-form-item>
                     <el-form-item
-                        label="侧边菜单"
+                        :label="t('siderMenu')"
                         prop="icon"
                         class="formItem"
                         :style="isTauri ? 'width: unset' : 'width: unset'"
@@ -266,7 +261,7 @@
                         />
                     </el-form-item>
                     <el-form-item
-                        label="功能菜单"
+                        :label="t('functionMenu')"
                         prop="tauriApi"
                         class="formItem"
                     >
@@ -277,7 +272,7 @@
                         />
                     </el-form-item>
                     <el-form-item
-                        label="加载进度"
+                        :label="t('loadingProgress')"
                         prop="tauriApi"
                         class="formItem"
                     >
@@ -288,7 +283,7 @@
                         />
                     </el-form-item>
                     <el-form-item
-                        label="APP标题"
+                        :label="t('appTitle')"
                         prop="tauriApi"
                         class="formItem"
                     >
@@ -310,7 +305,7 @@
                 <!-- bottom menu -->
                 <div class="inLine checkBox">
                     <el-form-item
-                        label="底部菜单"
+                        :label="t('appFooter')"
                         prop="icon"
                         class="formItem"
                         :style="isTauri ? 'width: unset' : 'width: unset'"
@@ -322,7 +317,7 @@
                         />
                     </el-form-item>
                     <el-form-item
-                        label="默认颜色"
+                        :label="t('defaultColor')"
                         prop="icon"
                         class="formItem"
                         :style="isTauri ? 'width: unset' : 'width: unset'"
@@ -334,7 +329,7 @@
                         />
                     </el-form-item>
                     <el-form-item
-                        label="激活颜色"
+                        :label="t('activeColor')"
                         prop="tauriApi"
                         class="formItem"
                     >
@@ -347,7 +342,7 @@
                         />
                     </el-form-item>
                     <el-form-item
-                        label="背景颜色"
+                        :label="t('backgroundColor')"
                         prop="tauriApi"
                         class="formItem"
                     >
@@ -361,7 +356,7 @@
                         />
                     </el-form-item>
                     <el-form-item
-                        label="字体大小"
+                        :label="t('fontSize')"
                         prop="tauriApi"
                         class="formItem"
                     >
@@ -383,14 +378,14 @@
                 <!-- menu config -->
                 <!-- <div class="inLine checkBox">
                     <el-form-item
-                        label="菜单一"
+                        :label="t('menuOne')"
                         prop="icon"
                         class="formItem"
                         :style="isTauri ? 'width: unset' : 'width: 18%'"
                     >
                     </el-form-item>
                     <el-form-item
-                        label="菜单文字"
+                        :label="t('menuText')"
                         prop="icon"
                         class="formItem"
                         :style="isTauri ? 'width: unset' : 'width: 18%'"
@@ -405,7 +400,7 @@
                         />
                     </el-form-item>
                     <el-form-item
-                        label="菜单图标"
+                        :label="t('menuIcon')"
                         prop="tauriApi"
                         class="formItem"
                     >
@@ -420,7 +415,7 @@
                     </el-form-item>
                     <el-form-item
                         prop="iconRound"
-                        label="菜单链接"
+                        :label="t('menuLink')"
                         class="formItem"
                     >
                         <el-input
@@ -435,14 +430,14 @@
                 </div>
                 <div class="inLine checkBox">
                     <el-form-item
-                        label="菜单二"
+                        :label="t('menuTwo')"
                         prop="icon"
                         class="formItem"
                         :style="isTauri ? 'width: unset' : 'width: 18%'"
                     >
                     </el-form-item>
                     <el-form-item
-                        label="菜单文字"
+                        :label="t('menuText')"
                         prop="icon"
                         class="formItem"
                         :style="isTauri ? 'width: unset' : 'width: 18%'"
@@ -457,7 +452,7 @@
                         />
                     </el-form-item>
                     <el-form-item
-                        label="菜单图标"
+                        :label="t('menuIcon')"
                         prop="tauriApi"
                         class="formItem"
                     >
@@ -472,7 +467,7 @@
                     </el-form-item>
                     <el-form-item
                         prop="iconRound"
-                        label="菜单链接"
+                        :label="t('menuLink')"
                         class="formItem"
                     >
                         <el-input
@@ -487,14 +482,14 @@
                 </div>
                 <div class="inLine checkBox">
                     <el-form-item
-                        label="菜单三"
+                        :label="t('menuThree')"
                         prop="icon"
                         class="formItem"
                         :style="isTauri ? 'width: unset' : 'width: 18%'"
                     >
                     </el-form-item>
                     <el-form-item
-                        label="菜单文字"
+                        :label="t('menuText')"
                         prop="icon"
                         class="formItem"
                         :style="isTauri ? 'width: unset' : 'width: 18%'"
@@ -509,7 +504,7 @@
                         />
                     </el-form-item>
                     <el-form-item
-                        label="菜单图标"
+                        :label="t('menuIcon')"
                         prop="tauriApi"
                         class="formItem"
                     >
@@ -524,7 +519,7 @@
                     </el-form-item>
                     <el-form-item
                         prop="iconRound"
-                        label="菜单链接"
+                        :label="t('menuLink')"
                         class="formItem"
                     >
                         <el-input
@@ -539,14 +534,14 @@
                 </div>
                 <div class="inLine checkBox">
                     <el-form-item
-                        label="菜单四"
+                        :label="t('menuFour')"
                         prop="icon"
                         class="formItem"
                         :style="isTauri ? 'width: unset' : 'width: 18%'"
                     >
                     </el-form-item>
                     <el-form-item
-                        label="菜单文字"
+                        :label="t('menuText')"
                         prop="icon"
                         class="formItem"
                         :style="isTauri ? 'width: unset' : 'width: 18%'"
@@ -561,7 +556,7 @@
                         />
                     </el-form-item>
                     <el-form-item
-                        label="菜单图标"
+                        :label="t('menuIcon')"
                         prop="tauriApi"
                         class="formItem"
                     >
@@ -576,7 +571,7 @@
                     </el-form-item>
                     <el-form-item
                         prop="iconRound"
-                        label="菜单链接"
+                        :label="t('menuLink')"
                         class="formItem"
                     >
                         <el-input
@@ -591,14 +586,14 @@
                 </div>
                 <div class="inLine checkBox">
                     <el-form-item
-                        label="菜单五"
+                        :label="t('menuFive')"
                         prop="icon"
                         class="formItem"
                         :style="isTauri ? 'width: unset' : 'width: 18%'"
                     >
                     </el-form-item>
                     <el-form-item
-                        label="菜单文字"
+                        :label="t('menuText')"
                         prop="icon"
                         class="formItem"
                         :style="isTauri ? 'width: unset' : 'width: 18%'"
@@ -613,7 +608,7 @@
                         />
                     </el-form-item>
                     <el-form-item
-                        label="菜单图标"
+                        :label="t('menuIcon')"
                         prop="tauriApi"
                         class="formItem"
                     >
@@ -628,7 +623,7 @@
                     </el-form-item>
                     <el-form-item
                         prop="iconRound"
-                        label="菜单链接"
+                        :label="t('menuLink')"
                         class="formItem"
                     >
                         <el-input
@@ -650,7 +645,7 @@
             <el-button @click="preview(false)">
                 {{ t('preview') }}
             </el-button>
-            <el-button :disabled="token === null" @click="createRepo">
+            <el-button @click="creatBuild">
                 {{ t('publish') }}
             </el-button>
         </div>
@@ -674,11 +669,13 @@
                 <!-- platform select -->
                 <el-form-item :label="t('pubPlatform')">
                     <el-checkbox-group v-model="pubForm.platform">
-                        <el-checkbox :label="t('androidapp')" value="android" />
+                        <el-checkbox
+                            :label="t('androidapp')"
+                            value="PakePlus-Android"
+                        />
                         <el-checkbox
                             :label="t('iosapp')"
-                            value="ios"
-                            disabled
+                            value="PakePlus-iOS"
                         />
                         <el-checkbox
                             :label="t('pwaapp')"
@@ -696,16 +693,20 @@
                 </el-form-item> -->
                 <!-- debug -->
                 <el-form-item :label="t('pubMode')">
-                    <el-radio-group v-model="pubForm.model">
-                        <el-radio value="close">{{ t('closeDebug') }}</el-radio>
-                        <el-radio value="debug" disabled>
+                    <el-radio-group
+                        v-model="store.currentProject.android.debug"
+                    >
+                        <el-radio :value="false">
+                            {{ t('closeDebug') }}
+                        </el-radio>
+                        <el-radio :value="true">
                             {{ t('openDebug') }}
                         </el-radio>
                     </el-radio-group>
                 </el-form-item>
                 <el-form-item :label="t('releaseNotes')">
                     <el-input
-                        v-model.trim="pubForm.desc"
+                        v-model="store.currentProject.android.pubBody"
                         type="textarea"
                         autocomplete="off"
                         autoCapitalize="off"
@@ -716,14 +717,14 @@
                 </el-form-item>
             </el-form>
             <span style="color: #aaa">
-                {{ t('pubNotesTips') }}
+                {{ t('pubPhoneTips') }}
             </span>
             <template #footer>
                 <div class="dialog-footer">
                     <el-button @click="centerDialogVisible = false">
                         {{ t('cancel') }}
                     </el-button>
-                    <el-button type="primary" @click="publishAndroid">
+                    <el-button type="primary" @click="publishPhone">
                         {{ t('confirm') }}
                     </el-button>
                 </div>
@@ -780,6 +781,21 @@
             "
         >
         </ImgPreview>
+        <Building
+            v-model:visible="buildLoading"
+            :desktopTime="buildTimeText.PakePLus"
+            :desktopStatus="buildStatus['PakePLus']"
+            :desktopRate="buildRates['PakePLus']"
+            :androidTime="buildTimeText['PakePlus-Android']"
+            :androidStatus="buildStatus['PakePlus-Android']"
+            :androidRate="buildRates['PakePlus-Android']"
+            :iosTime="buildTimeText['PakePlus-iOS']"
+            :iosStatus="buildStatus['PakePlus-iOS']"
+            :iosRate="buildRates['PakePlus-iOS']"
+            :pwaTime="buildTimeText['PWA']"
+            :pwaStatus="buildStatus['PWA']"
+            :pwaRate="buildRates['PWA']"
+        />
     </div>
 </template>
 
@@ -790,14 +806,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { invoke } from '@tauri-apps/api/core'
 import type { ComponentSize, FormInstance, FormRules } from 'element-plus'
 import githubApi from '@/apis/github'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { usePakeStore } from '@/store'
-import {
-    readFile,
-    readTextFile,
-    writeTextFile,
-    exists,
-} from '@tauri-apps/plugin-fs'
+import { usePPStore } from '@/store'
+import { readFile, writeTextFile, exists } from '@tauri-apps/plugin-fs'
 import { appDataDir, join } from '@tauri-apps/api/path'
 import { basename } from '@tauri-apps/api/path'
 import {
@@ -806,27 +816,21 @@ import {
     Edit,
     Picture,
     CircleCloseFilled,
-    ForkSpoon,
     UploadFilled,
     Warning,
     Paperclip,
     Document,
+    Orange,
 } from '@element-plus/icons-vue'
 import CutterImg from '@/components/CutterImg.vue'
 import CodeEdit from '@/components/CodeEdit.vue'
 import { useI18n } from 'vue-i18n'
 import {
     CSSFILTER,
-    isAlphanumeric,
     openUrl,
     isTauri,
-    platforms,
     arrayBufferToBase64,
     cropImageToRound,
-    getBuildYmlFetch,
-    getCargoTomlFetch,
-    getTauriConfFetch,
-    getInitRustFetch,
     base64Encode,
     loadingText,
     includeHtm,
@@ -836,18 +840,20 @@ import {
     openSelect,
     readDirRecursively,
     replaceFileRoot,
-    getLibRsFetch,
     urlMap,
     fileSizeLimit,
+    oneMessage,
+    createIssue,
 } from '@/utils/common'
 import { platform } from '@tauri-apps/plugin-os'
 import { getCurrentWindow } from '@tauri-apps/api/window'
 import TauriConfig from '@/components/TauriConfig.vue'
 import ImgPreview from '@/components/ImgPreview.vue'
+import Building from '@/components/Building.vue'
 
 const route = useRoute()
 const router = useRouter()
-const store = usePakeStore()
+const store = usePPStore()
 const { t } = useI18n()
 const tempIconBase64 = ref('')
 const iconBase64 = ref('')
@@ -856,18 +862,69 @@ const cutVisible = ref(false)
 const centerDialogVisible = ref(false)
 const formSize = ref<ComponentSize>('default')
 const appFormRef = ref<FormInstance>()
-
-const token = localStorage.getItem('token')
 const iconFileName = ref('')
 const file = ref<any>(null)
 
 const distInput = ref<any>(null)
 const jsFileContents = ref('')
-const jsSelOptions: any = ref<any>([])
 const configDialogVisible = ref(false)
 const codeDialogVisible = ref(false)
 const imgPreviewVisible = ref(false)
 const warning = ref('')
+
+// do not use same name with ref
+const pubForm = reactive({
+    platform: ['PakePlus-Android', 'PakePlus-iOS'],
+    chip: 'macos',
+    model: 'close',
+    desc: '',
+})
+
+const buildLoading = ref(false)
+// check dispatch workflow timer
+let buildTime = reactive<any>({
+    PakePLus: 0,
+    'PakePlus-Android': 0,
+    'PakePlus-iOS': 0,
+    PWA: 0,
+})
+
+let buildTimeText = reactive<any>({
+    PakePLus: '',
+    'PakePlus-Android': '',
+    'PakePlus-iOS': '',
+    PWA: '',
+})
+
+let buildStatus = reactive<any>({
+    PakePLus: '',
+    'PakePlus-Android': '',
+    'PakePlus-iOS': '',
+    PWA: '',
+})
+
+let buildRates = reactive<any>({
+    PakePLus: 0,
+    'PakePlus-Android': 0,
+    'PakePlus-iOS': 0,
+    PWA: 0,
+})
+
+// 编译时间计时器
+let buildTimer = reactive<any>({
+    PakePLus: null,
+    'PakePlus-Android': null,
+    'PakePlus-iOS': null,
+    PWA: null,
+})
+
+// 检查dispatch workflow timer
+let checkDispatchTimer = reactive<any>({
+    PakePLus: null,
+    'PakePlus-Android': null,
+    'PakePlus-iOS': null,
+    PWA: null,
+})
 
 const appRules = reactive<FormRules>({
     showName: [
@@ -971,7 +1028,7 @@ const appRules = reactive<FormRules>({
 
 // tip warning
 const showWarning = () => {
-    ElMessage.error(warning.value)
+    oneMessage.error(warning.value)
 }
 
 // is json config
@@ -1003,23 +1060,23 @@ const safeVal = ref('all')
 const safeOptions = [
     {
         value: 'all',
-        label: '全忽略',
+        label: t('ignoreAll'),
     },
     {
         value: 'top',
-        label: '仅头部',
+        label: t('ignoreTop'),
     },
     {
         value: 'bottom',
-        label: '仅底部',
+        label: t('ignoreBottom'),
     },
     {
         value: 'left',
-        label: '仅左侧',
+        label: t('ignoreLeft'),
     },
     {
         value: 'right',
-        label: '仅右侧',
+        label: t('ignoreRight'),
     },
 ]
 // APP标头
@@ -1027,11 +1084,11 @@ const appHeaderVal = ref('default')
 const appHeaderOptions = [
     {
         value: 'default',
-        label: '默认',
+        label: t('default'),
     },
     {
         value: 'custom',
-        label: '自定义',
+        label: t('custom'),
     },
 ]
 
@@ -1059,7 +1116,7 @@ const closeConfigDialog = (done: any = () => {}) => {
         configDialogVisible.value = false
         done()
     } else {
-        ElMessage.error(t('jsonError'))
+        oneMessage.error(t('jsonError'))
     }
 }
 
@@ -1084,29 +1141,6 @@ const confirmIcon = (base64Data: string) => {
     image.onload = () => {
         roundIcon.value = cropImageToRound(image)
     }
-}
-
-// platform change
-const platformChange = (value: any) => {
-    const platformInfo = platforms[value]
-    store.currentProject.width = platformInfo.width
-    store.currentProject.height = platformInfo.height
-    store.currentProject.more.windows.width = platformInfo.width
-    store.currentProject.more.windows.height = platformInfo.height
-    store.currentProject.more.windows.userAgent = platformInfo.userAgent
-    tauriConfigRef.value?.updateCode()
-}
-
-// rotate width and height
-const rotateWH = () => {
-    const temp = store.currentProject.more.windows.width
-    store.currentProject.more.windows.width =
-        store.currentProject.more.windows.height
-    store.currentProject.more.windows.height = temp
-    store.currentProject.width = store.currentProject.more.windows.width
-    store.currentProject.height = store.currentProject.more.windows.height
-    tauriConfigRef.value?.updateCode()
-    preview(true)
 }
 
 // web upload icon
@@ -1139,7 +1173,7 @@ const loadHtml = async () => {
             store.currentProject.htmlPath = selected
             store.currentProject.more.windows.url = configUrl
         } else {
-            ElMessage.error(t('indexHtmError'))
+            oneMessage.error(t('indexHtmError'))
         }
     }
 }
@@ -1161,7 +1195,7 @@ const tauriHtmlUpload = async () => {
                 // limit file size
                 const fileSize = fileContent.byteLength
                 if (fileSize > fileSizeLimit) {
-                    ElMessage.error(t('limitSize'))
+                    oneMessage.error(t('limitSize'))
                     buildLoading.value = false
                     warning.value = t('limitSize')
                     return 'stop'
@@ -1196,7 +1230,7 @@ const activeDistInput = async () => {
         loadHtml()
     } else {
         if (!store.token) {
-            ElMessage.error(t('configToken'))
+            oneMessage.error(t('configToken'))
             return
         } else {
             distInput.value.click()
@@ -1233,7 +1267,7 @@ const handleFileChange = async (event: any) => {
         for (const file of files) {
             const fileSize = file.size
             if (fileSize > fileSizeLimit) {
-                ElMessage.error(t('limitSize'))
+                oneMessage.error(t('limitSize'))
                 return
             }
         }
@@ -1249,17 +1283,17 @@ const handleFileChange = async (event: any) => {
                 await uploadFiles(files)
                 buildLoading.value = false
                 loadingText(t('syncFileSuccess'))
-                ElMessage.success(t('syncFileSuccess'))
+                oneMessage.success(t('syncFileSuccess'))
             } catch (error: any) {
                 console.error('uploadFiles error', error)
                 warning.value = error.message
                 buildLoading.value = false
                 loadingText(t('syncFileError'))
-                ElMessage.error(t('syncFileError'))
+                oneMessage.error(t('syncFileError'))
             }
             store.addUpdatePro(store.currentProject)
         } else {
-            ElMessage.error(t('indexHtmError'))
+            oneMessage.error(t('indexHtmError'))
             buildLoading.value = false
         }
     }
@@ -1323,7 +1357,7 @@ const handleIconChange = (event: any) => {
     if (file) {
         const fileSize = file.size
         if (fileSize > fileSizeLimit) {
-            ElMessage.error(t('limitSize'))
+            oneMessage.error(t('limitSize'))
             return
         }
         fileToBase64(file)
@@ -1362,7 +1396,7 @@ const uploadIcon = async () => {
     console.log('fileSize', fileSize)
     // limit file size
     if (fileSize > 1024 * 1024 * 10) {
-        ElMessage.error(t('limitSize'))
+        oneMessage.error(t('limitSize'))
         return
     }
     const base64Data: any = arrayBufferToBase64(binaryData)
@@ -1373,8 +1407,8 @@ const uploadIcon = async () => {
 }
 
 // update icon file content
-const updateIcon = async () => {
-    loadingText(t('syncConfig') + 'icon...')
+const updateIcon = async (repo: string) => {
+    buildStatus[repo] = t('syncConfig') + 'icon...'
     if (iconBase64.value === '') {
         return
     }
@@ -1384,26 +1418,29 @@ const updateIcon = async () => {
     // get app-icon.png sha
     const iconSha: any = await githubApi.getFileSha(
         store.userInfo.login,
-        'PakePlus',
+        repo,
         'app-icon.png',
         { ref: store.currentProject.name }
     )
     // update icon file content
-    if (iconSha.status === 200) {
+    console.log('iconSha----', iconSha)
+    if (iconSha.status === 200 || iconSha.status === 404) {
         const updateRes: any = await githubApi.updateIconFile(
             store.userInfo.login,
-            'PakePlus',
+            repo,
             {
                 message: 'update icon from pakeplus',
-                sha: iconSha.data.sha,
+                sha: iconSha?.data?.sha,
                 branch: store.currentProject.name,
                 content: iconContent,
             }
         )
         if (updateRes.status === 200) {
             console.log('updateRes', updateRes)
+            buildStatus[repo] = t('syncConfig') + 'icon success...'
         } else {
             console.error('updateRes error', updateRes)
+            buildStatus[repo] = t('syncConfig') + 'icon error...'
         }
     }
 }
@@ -1418,26 +1455,9 @@ const toHistory = () => {
     router.push('/history')
 }
 
-// delete current project
-const deleteProject = () => {
-    ElMessageBox.confirm(t('confirmDelProject'), t('tips'), {
-        confirmButtonText: t('confirm'),
-        cancelButtonText: t('cancel'),
-        type: 'warning',
-    })
-        .then(() => {
-            console.log('delete project')
-            githubApi.deleteBranch(
-                store.userInfo.login,
-                'PakePlus',
-                store.currentProject.name
-            )
-            store.delProject(store.currentProject)
-            router.push('/')
-        })
-        .catch(() => {
-            console.log('catch project')
-        })
+// more phone config
+const morePhoneConfig = () => {
+    oneMessage.success(t('morePhoneConfig'))
 }
 
 // save js file content to appDataDir
@@ -1459,7 +1479,6 @@ const saveFormInput = async () => {
     store.addUpdatePro({
         ...store.currentProject,
         name: store.currentProject.name,
-        debug: pubForm.model,
         more: store.currentProject.more,
     })
     !configDialogVisible.value && tauriConfigRef.value?.updateCode()
@@ -1478,18 +1497,18 @@ const saveProject = async (tips: boolean = true) => {
             if (configDialogVisible.value) {
                 const isJson = tauriConfigRef.value?.checkJson()
                 if (isJson) {
-                    ElMessage.success(t('saveSuccess'))
+                    oneMessage.success(t('saveSuccess'))
                 } else {
-                    ElMessage.error(t('jsonError'))
+                    oneMessage.error(t('jsonError'))
                 }
             } else {
-                tips && ElMessage.success(t('saveSuccess'))
+                tips && oneMessage.success(t('saveSuccess'))
             }
         } else {
             console.error('error submit!', fields)
             for (const key in fields) {
                 if (fields[key].length > 0) {
-                    ElMessage.error(fields[key][0].message)
+                    oneMessage.error(fields[key][0].message)
                     return
                 }
             }
@@ -1524,12 +1543,13 @@ const getInitializationScript = () => {
 }
 
 const preview = async (resize: boolean) => {
+    let serverPort = 3030
     if (isTauri) {
         try {
-            const res = await invoke('start_server', {
+            serverPort = await invoke('start_server', {
                 path: store.currentProject.htmlPath,
             })
-            console.log('Server started successfully', res)
+            console.log('Server started successfully', serverPort)
         } catch (error) {
             console.error('Failed to start server:', error)
         }
@@ -1539,7 +1559,7 @@ const preview = async (resize: boolean) => {
             platformName === 'windows' &&
             store.currentProject.more.windows.additionalBrowserArgs
         ) {
-            ElMessage.error('additionalBrowserArgs cant preview on windows')
+            oneMessage.error('additionalBrowserArgs cant preview on windows')
             return
         }
         if (
@@ -1553,7 +1573,7 @@ const preview = async (resize: boolean) => {
             store.previewSecond !== 60
         ) {
             console.log('html preview error')
-            ElMessage.error(t('htmlError'))
+            oneMessage.error(t('htmlError'))
             return
         } else {
             console.log('unknown preview error')
@@ -1575,8 +1595,12 @@ const preview = async (resize: boolean) => {
                     config: {
                         ...store.currentProject.more.windows,
                         label: 'PreView',
+                        width: 430,
+                        height: 932,
+                        userAgent:
+                            'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
                         url: store.currentProject.isHtml
-                            ? 'http://127.0.0.1:3030/index.html'
+                            ? `http://127.0.0.1:${serverPort}/index.html`
                             : store.currentProject.url,
                     },
                     jsContent: initJsScript,
@@ -1588,15 +1612,14 @@ const preview = async (resize: boolean) => {
             }
         })
     } else {
-        ElMessage.error(t('notSupportWeb'))
+        oneMessage.error(t('notSupportWeb'))
     }
 }
 
-const createRepo = async () => {
+const creatBuild = async () => {
     appFormRef.value?.validate(async (valid, fields) => {
         if (valid) {
             saveProject(false)
-            console.log('submit!', store.currentProject)
             centerDialogVisible.value = true
         } else {
             console.error('error submit!', fields)
@@ -1604,339 +1627,144 @@ const createRepo = async () => {
     })
 }
 
-// do not use same name with ref
-const pubForm = reactive({
-    platform: ['android'],
-    chip: 'macos',
-    model: 'close',
-    desc: '',
-})
-
-const buildLoading = ref(false)
-// check dispatch workflow timer
-let buildTime = 0
-let buildStatus = t('startCompile') + '...'
-let buildSecondTimer: any = null
-let checkDispatchTimer: any = null
-
-// delete lasted release
-const deleteRelease = async () => {
-    if (store.isRelease) {
-        const releaseRes: any = await githubApi.deleteRelease(
-            store.userInfo.login,
-            'PakePlus',
-            store.releases[store.currentProject.name].id
-        )
-        console.log('deleteRelease', releaseRes)
-    }
-    // reset release
-    store.setRelease(store.currentProject.name, { id: 0 })
-}
-
 // update build.yml file content
-const updateBuildYml = async () => {
-    loadingText(t('syncConfig') + 'action...')
-    // get build.yml file sha
-    const shaRes = await getFileSha(
-        '.github/workflows/build.yml',
-        store.currentProject.name
-    )
-    console.log('get build.yml file sha', shaRes)
-    if (shaRes.status === 200 || shaRes.status === 404) {
-        // get build.yml file content
-        const content = await getBuildYmlFetch({
-            name: store.currentProject.name,
-            body: pubForm.desc,
-        })
-        // update build.yml file content
-        const updateRes: any = await githubApi.updateBuildYmlFile(
-            store.userInfo.login,
-            'PakePlus',
-            {
-                message: 'update build.yml from pakeplus',
-                content: content,
-                sha: shaRes.data.sha,
-                branch: store.currentProject.name,
-            }
-        )
-        if (updateRes.status === 200) {
-            console.log('updateBuildYml', updateRes)
-            loadingText(t('syncConfig') + '...')
-        } else {
-            console.error('updateBuildYml error', updateRes)
-        }
-    } else {
-        console.error('getFileSha error', shaRes)
-    }
-}
-
-// update build.yml file content
-const updateCargoToml = async () => {
-    loadingText(t('syncConfig') + 'Cargo...')
+const updateCustomJs = async (repo: string, jsPath: string) => {
+    buildStatus[repo] = t('syncConfig') + 'custom...'
     // get CargoToml file sha
-    const shaRes = await getFileSha(
-        'src-tauri/Cargo.toml',
-        store.currentProject.name
-    )
-    console.log('get CargoToml file sha', shaRes)
-    if (shaRes.status === 200 || shaRes.status === 404) {
-        // get CargoToml file content
-        const configContent: any = await getCargoTomlFetch({
-            name: store.currentProject.name,
-            version: store.currentProject.version,
-            desc: store.currentProject.desc,
-            debug: pubForm.model === 'debug',
-            single: store.currentProject.single,
-        })
-        // update config file
-        const updateRes: any = await githubApi.updateCargoFile(
-            store.userInfo.login,
-            'PakePlus',
-            {
-                message: 'update Cargo.toml from pakeplus',
-                content: configContent,
-                sha: shaRes.data.sha,
-                branch: store.currentProject.name,
-            }
-        )
-        if (updateRes.status === 200) {
-            console.log('updateCargoToml', updateRes)
-            loadingText(t('syncConfig') + '...')
-        } else {
-            console.error('updateCargoToml error', updateRes)
+    const shaRes: any = await githubApi.getFileSha(
+        store.userInfo.login,
+        repo,
+        jsPath,
+        {
+            ref: store.currentProject.name,
         }
-    } else {
-        console.error('getFileSha error', shaRes)
-    }
-}
-
-// update build.yml file content
-const updateInitRs = async () => {
-    loadingText(t('syncConfig') + 'rust...')
-    // get CargoToml file sha
-    const shaRes = await getFileSha(
-        'src-tauri/src/utils/init.rs',
-        store.currentProject.name
-    )
-    console.log('get init.rs file sha', shaRes)
-    if (shaRes.status === 200 || shaRes.status === 404) {
-        // get CargoToml file content
-        const configContent: any = await getInitRustFetch({
-            config: JSON.stringify(store.currentProject.more.windows),
-            state: store.currentProject.state,
-            injectjq: store.currentProject.injectJq,
-            isHtml: store.currentProject.isHtml,
-        })
-        const updateRes: any = await githubApi.updateFileContent(
-            store.userInfo.login,
-            'PakePlus',
-            'src-tauri/src/utils/init.rs',
-            {
-                message: 'update init rust from pakeplus',
-                content: configContent,
-                sha: shaRes.data.sha,
-                branch: store.currentProject.name,
-            }
-        )
-        if (updateRes.status === 200) {
-            loadingText(t('syncConfig') + 'rust...')
-        } else {
-            console.error('updateInitRs error', updateRes)
-        }
-    } else {
-        console.error('getFileSha error', shaRes)
-    }
-}
-
-// update lib.rs file content
-// update build.yml file content
-const updateLibRs = async () => {
-    loadingText(t('syncConfig') + 'rust...')
-    // get CargoToml file sha
-    const shaRes = await getFileSha(
-        'src-tauri/src/lib.rs',
-        store.currentProject.name
-    )
-    console.log('get lib.rs file sha', shaRes)
-    if (shaRes.status === 200 || shaRes.status === 404) {
-        // get CargoToml file content
-        const configContent: any = await getLibRsFetch({
-            single: store.currentProject.single,
-        })
-        const updateRes: any = await githubApi.updateFileContent(
-            store.userInfo.login,
-            'PakePlus',
-            'src-tauri/src/lib.rs',
-            {
-                message: 'update lib rust from pakeplus',
-                content: configContent,
-                sha: shaRes.data.sha,
-                branch: store.currentProject.name,
-            }
-        )
-        if (updateRes.status === 200) {
-            console.log('updateLibRs', updateRes)
-            loadingText(t('syncConfig') + 'rust...')
-        }
-    } else {
-        console.error('getFileSha error', shaRes)
-    }
-}
-
-// update build.yml file content
-const libRsConfig = async () => {
-    // get CargoToml file sha
-    const shaRes = await getFileSha(
-        'src-tauri/src/lib.rs',
-        store.currentProject.name
-    )
-    console.log('get CargoToml file sha', shaRes)
-    if (shaRes.status === 200 || shaRes.status === 404) {
-        // get CargoToml file content
-        const configContent: any = await invoke('rust_lib_window', {
-            config: JSON.stringify(store.currentProject.more.windows),
-        })
-        const updateRes: any = await githubApi.updateFileContent(
-            store.userInfo.login,
-            'PakePlus',
-            'src-tauri/src/lib.rs',
-            {
-                message: 'update lib rust from pakeplus',
-                content: configContent,
-                sha: shaRes.data.sha,
-                branch: store.currentProject.name,
-            }
-        )
-        if (updateRes.status === 200) {
-            console.log('updateRes', updateRes)
-        }
-    } else {
-        console.error('getFileSha error', shaRes)
-    }
-}
-
-// update build.yml file content
-const updateCustomJs = async () => {
-    loadingText(t('syncConfig') + 'custom...')
-    // get CargoToml file sha
-    const shaRes = await getFileSha(
-        'src-tauri/data/custom.js',
-        store.currentProject.name
     )
     console.log('get custom file sha', shaRes)
     if (shaRes.status === 200 || shaRes.status === 404) {
         // get CargoToml file content
         const initJsScript = getInitializationScript()
-        const jsFileContent: any = await base64Encode(initJsScript)
-        const updateRes: any = await githubApi.updateCustomJsFile(
+        const jsFileContent: any = base64Encode(initJsScript)
+        const updateRes: any = await githubApi.updateFileContent(
             store.userInfo.login,
-            'PakePlus',
+            repo,
+            jsPath,
             {
                 message: 'update custom js from pakeplus',
                 content: jsFileContent,
-                sha: shaRes.data.sha,
+                sha: shaRes?.data?.sha,
                 branch: store.currentProject.name,
             }
         )
         if (updateRes.status === 200) {
             console.log('updateCustomJs', updateRes)
-            loadingText(t('syncConfig') + '...')
+            buildStatus[repo] = t('syncConfig') + '...'
         }
     } else {
         console.error('getFileSha error', shaRes)
     }
 }
 
-// update tauri.conf.json
-const updateTauriConfig = async () => {
-    loadingText(t('syncConfig') + 'tauri...')
-    // update tauri config json
-    const configSha: any = await getFileSha(
-        'src-tauri/tauri.conf.json',
-        store.currentProject.name
+// update build.yml file content
+const updatePPconfig = async (repo: string) => {
+    buildStatus[repo] = t('syncConfig') + 'ppconfig...'
+    // get CargoToml file sha
+    const shaRes: any = await githubApi.getFileSha(
+        store.userInfo.login,
+        repo,
+        'scripts/ppconfig.json',
+        {
+            ref: store.currentProject.name,
+        }
     )
-    try {
-        // remove label from windows
-        let { label, ...newWindows } = store.currentProject.more.windows
-        const configContent: any = await getTauriConfFetch({
-            name: store.currentProject.showName,
-            version: store.currentProject.version,
-            id: store.currentProject.appid,
-            ascii: isAlphanumeric(store.currentProject.showName),
-            windowConfig: JSON.stringify(newWindows),
-            tauriApi: store.currentProject.tauriApi,
-            isHtml: store.currentProject.isHtml,
-        })
+    console.log('get ppconfig file sha', shaRes)
+    if (shaRes.status === 200 || shaRes.status === 404) {
+        console.log('updatePPconfig------', store.ppConfig)
+        // get CargoToml file content
+        const configContent: any = base64Encode(JSON.stringify(store.ppConfig))
         // update config file
-        const updateRes: any = await githubApi.updateConfigFile(
+        const updateRes: any = await githubApi.updateFileContent(
             store.userInfo.login,
-            'PakePlus',
+            repo,
+            'scripts/ppconfig.json',
             {
-                message: 'update config from pakeplus',
+                message: 'update ppconfig from pakeplus',
                 content: configContent,
-                sha: configSha.data.sha,
+                sha: shaRes?.data?.sha,
                 branch: store.currentProject.name,
             }
         )
         if (updateRes.status === 200) {
-            loadingText(t('syncConfig') + '...')
+            console.log('updatePPconfig', updateRes)
+            buildStatus[repo] = t('syncConfig') + '...'
+        } else {
+            console.error('updatePPconfig error', updateRes)
         }
-    } catch (error) {
-        console.error('Error reading JSON file:', error)
+    } else {
+        console.error('getFileSha error', shaRes)
     }
 }
 
 // new publish version
-const publishAndroid = async () => {
+const publishPhone = async () => {
+    if (store.token === '') {
+        oneMessage.error(t('configToken'))
+        return
+    }
     centerDialogVisible.value = false
     buildLoading.value = true
-    loadingText(t('preCheck') + '...')
-    try {
-        // publish web or dist
-        loadingText(t('syncConfig') + '...')
-        const generator = store.androidBuildStep()
-        let result = await generator.next()
-        while (!result.done) {
-            console.log(`当前执行到: ${result.value}`)
-            result = await generator.next()
+    pubForm.platform.forEach(async (repo: string) => {
+        buildStatus[repo] = t('preCheck') + '...'
+        try {
+            // delete release
+            store.isRelease && (await store.deleteRelease(repo))
+            // publish web or dist
+            buildStatus[repo] = t('syncConfig') + '...'
+            // if (isTauri) {
+            //     const res = await tauriHtmlUpload()
+            //     if (res === 'stop') {
+            //         return
+            //     }
+            // }
+            // update app icon
+            await updateIcon(repo)
+            // update custom.js
+            if (repo === 'PakePlus-Android') {
+                await updateCustomJs(repo, 'app/src/main/assets/custom.js')
+            } else {
+                await updateCustomJs(repo, 'PakePlus/custom.js')
+            }
+            // update ppconfig.json
+            await updatePPconfig(repo)
+            // dispatch action
+            await dispatchAction(repo)
+        } catch (error: any) {
+            warning.value = error.message
+            buildTime[repo] = 0
+            loadingText(t('failure'))
+            buildLoading.value = false
+            createIssue(
+                store.currentProject.name,
+                store.currentProject.showName,
+                store.currentProject.isHtml,
+                'PakePlus publish action error',
+                'failure',
+                'build error',
+                repo
+            )
         }
-        // dispatch action
-        // dispatchAction()
-        console.log('publishAndroid end')
-    } catch (error: any) {
-        warning.value = error.message
-        buildTime = 0
-        loadingText(t('failure'))
-        buildLoading.value = false
-        createIssue(
-            `publish action error: ${error.message}`,
-            'failure',
-            'build error'
-        )
-    }
-}
-
-const getFileSha = async (filePath: string, branch: string) => {
-    const res: any = await githubApi.getFileSha(
-        store.userInfo.login,
-        'PakePlus',
-        filePath,
-        { ref: branch }
-    )
-    return res
+    })
 }
 
 // dispatch workflow action
-const dispatchAction = async () => {
-    loadingText(t('preCompile') + 'workflow...')
+const dispatchAction = async (repo: string) => {
+    buildStatus[repo] = t('preCompile') + 'workflow...'
+    // wait file sync
+    await new Promise((resolve) => setTimeout(resolve, 3000))
     const dispatchRes: any = await githubApi.dispatchWorkflow(
         store.userInfo.login,
-        'PakePlus',
+        repo,
         {
             ref: store.currentProject.name,
-            inputs: {
-                branch: store.currentProject.name,
-            },
         }
     )
     if (dispatchRes.status !== 204) {
@@ -1945,84 +1773,80 @@ const dispatchAction = async () => {
             ? dispatchRes.data.message
             : dispatchRes.status
         warning.value = t('dispatchError') + ':' + message
-        ElMessage.error(warning.value)
+        oneMessage.error(warning.value)
         buildLoading.value = false
         return
     } else {
-        buildSecondTimer = setInterval(() => {
-            buildTime += 1
-            const minute = Math.floor(buildTime / 60)
-            const second = buildTime % 60
-            const buildRate = Math.floor((buildTime / (60 * 15)) * 100)
-            // loadingText.value = `${buildStatus}...${minute}分${second}秒`
-            const loadingState = `<div>${minute}${t('minute')}${second}${t(
+        buildStatus[repo] = t('inProgress') + '...'
+        buildTimer[repo] = setInterval(() => {
+            buildTime[repo] += 1
+            const minute = Math.floor(buildTime[repo] / 60)
+            const second = buildTime[repo] % 60
+            buildTimeText[repo] = `${minute}${t('minute')}${second}${t(
                 'second'
-            )}</div><div>${buildStatus}${
-                buildRate > 99 ? 99 : buildRate
-            }%...</div>`
-            // console.log('loadingText---', loadingText)
-            loadingText(loadingState)
+            )}`
+            const buildRate = Math.floor((buildTime[repo] / (60 * 15)) * 100)
+            buildRates[repo] = buildRate > 99 ? 99 : buildRate
         }, 1000)
         // check build status
         setTimeout(async () => {
-            checkDispatchTimer = setInterval(async () => {
-                checkBuildStatus()
-            }, 1000 * 10)
-        }, 1000 * 60 * 3)
+            checkDispatchTimer[repo] = setInterval(async () => {
+                checkBuildStatus(repo)
+            }, 1000 * 5)
+        }, 1000 * 60 * 2)
     }
 }
 
-// create issue
-const createIssue = async (url: string, label: string, title: string) => {
-    console.log('createIssue', url, label, title)
-    await githubApi.createIssue({
-        body: `build name: ${store.currentProject.name}\r
-        show name: ${store.currentProject.showName}\r
-        build state: ${label}\r
-        build type: ${store.currentProject.isHtml ? 'html' : 'web'}\r
-        build client: ${isTauri ? 'tauri' : 'web'}\r
-        build action: ${url}`,
-        title: title,
-    })
-}
-
 // rerun fails jobs
-let rerunCount = 0
-const reRunFailsJobs = async (id: number, html_url: string) => {
-    rerunCount += 1
-    if (rerunCount >= 3) {
-        console.log('rerun cancel', rerunCount)
-        buildLoading.value = false
-        buildTime = 0
+let rerunCounts: any = {
+    PakePLus: 0,
+    'PakePlus-Android': 0,
+    'PakePlus-iOS': 0,
+    PWA: 0,
+}
+const reRunFailsJobs = async (repo: string, id: number, html_url: string) => {
+    rerunCounts[repo] += 1
+    if (rerunCounts[repo] >= 3) {
+        console.log('rerun cancel', rerunCounts[repo])
+        // buildLoading.value = false
+        // buildTime = 0
         warning.value = 'rerun cancel and rerun count > 3'
-        createIssue(html_url, 'failure', 'build error')
+        createIssue(
+            store.currentProject.name,
+            store.currentProject.showName,
+            store.currentProject.isHtml,
+            html_url,
+            'failure',
+            'build error',
+            repo
+        )
         openUrl(html_url)
         loadingText(t('failure'))
-        buildSecondTimer && clearInterval(buildSecondTimer)
-        checkDispatchTimer && clearInterval(checkDispatchTimer)
+        buildTimer[repo] && clearInterval(buildTimer[repo])
+        checkDispatchTimer[repo] && clearInterval(checkDispatchTimer[repo])
     } else {
         const rerunRes: any = await githubApi.rerunFailedJobs(
             store.userInfo.login,
-            'PakePlus',
+            repo,
             id
         )
         // 201 is success 403 is running
         if (rerunRes.status === 201 || rerunRes.status === 403) {
             console.log('rerun success')
             if (rerunRes.status === 403) {
-                rerunCount -= 1
+                rerunCounts[repo] -= 1
             }
         } else {
-            reRunFailsJobs(id, html_url)
+            reRunFailsJobs(repo, id, html_url)
         }
     }
 }
 
 // check build workflow status
-const checkBuildStatus = async () => {
+const checkBuildStatus = async (repo: string) => {
     const checkRes: any = await githubApi.getWorkflowRuns(
         store.userInfo.login,
-        'PakePlus',
+        repo,
         {
             branch: store.currentProject.name,
             event: 'workflow_dispatch',
@@ -2030,65 +1854,75 @@ const checkBuildStatus = async () => {
     )
     const build_runs = checkRes.data.workflow_runs[0]
     const { id, status, conclusion, html_url } = build_runs
-    buildStatus = t(status) || t('inProgress')
+    console.log('buildStatus', repo, status)
+    buildStatus[repo] = t(status) || t('inProgress')
     console.log('checkBuildStatus', build_runs)
     if (checkRes.status === 200 && checkRes.data.total_count > 0) {
         if (status === 'completed' && conclusion === 'success') {
-            createIssue(html_url, 'success', 'build success')
-            loadingText(t('buildSuccess'))
+            createIssue(
+                store.currentProject.name,
+                store.currentProject.showName,
+                store.currentProject.isHtml,
+                html_url,
+                'success',
+                'build success',
+                repo
+            )
+            await new Promise((resolve) => setTimeout(resolve, 3000))
+            store.setCurrentRelease()
+            buildStatus[repo] = t('buildSuccess')
+            buildRates[repo] = 100
             // clear timer
-            buildSecondTimer && clearInterval(buildSecondTimer)
-            checkDispatchTimer && clearInterval(checkDispatchTimer)
-            buildLoading.value = false
-            buildTime = 0
-            router.push('/history')
+            buildTimer[repo] && clearInterval(buildTimer[repo])
+            checkDispatchTimer[repo] && clearInterval(checkDispatchTimer[repo])
+            // buildLoading.value = false
+            // buildTime = 0
+            // router.push('/history')
         } else if (status === 'completed' && conclusion === 'cancelled') {
-            createIssue(html_url, 'cancelled', 'build cancelled')
-            loadingText(t('cancelled'))
-            buildLoading.value = false
-            buildTime = 0
+            createIssue(
+                store.currentProject.name,
+                store.currentProject.showName,
+                store.currentProject.isHtml,
+                html_url,
+                'cancelled',
+                'build cancelled',
+                repo
+            )
+            buildStatus[repo] = t('cancelled')
+            // buildLoading.value = false
+            // buildTime = 0
             // clear interval
-            buildSecondTimer && clearInterval(buildSecondTimer)
-            checkDispatchTimer && clearInterval(checkDispatchTimer)
+            buildTimer[repo] && clearInterval(buildTimer[repo])
+            checkDispatchTimer[repo] && clearInterval(checkDispatchTimer[repo])
         } else if (status === 'failure' || conclusion === 'failure') {
-            reRunFailsJobs(id, html_url)
+            reRunFailsJobs(repo, id, html_url)
         } else if (status === 'completed' && conclusion === 'failure') {
-            reRunFailsJobs(id, html_url)
+            reRunFailsJobs(repo, id, html_url)
         } else if (status === 'in_progress') {
             console.log('build in progress...')
         }
     } else {
-        if (rerunCount >= 2) {
-            buildTime = 0
-            buildLoading.value = false
+        if (rerunCounts[repo] >= 2) {
+            // buildTime = 0
+            // buildLoading.value = false
             openUrl(html_url)
-            buildSecondTimer && clearInterval(buildSecondTimer)
-            checkDispatchTimer && clearInterval(checkDispatchTimer)
-            loadingText(t('failure'))
+            buildTimer[repo] && clearInterval(buildTimer[repo])
+            checkDispatchTimer[repo] && clearInterval(checkDispatchTimer[repo])
+            // loadingText(t('failure'))
+            buildStatus[repo] = t('failure')
+            createIssue(
+                store.currentProject.name,
+                store.currentProject.showName,
+                store.currentProject.isHtml,
+                html_url,
+                'failure',
+                'build error',
+                repo
+            )
         } else {
-            reRunFailsJobs(id, html_url)
+            reRunFailsJobs(repo, id, html_url)
         }
     }
-}
-
-// init jsFileContents from jsFile
-const initJsFileContents = async () => {
-    // read js file content from appDataDir assets dir
-    const appDataPath = await appDataDir()
-    const targetDir = await join(appDataPath, 'assets')
-    const jsFilePath = await join(targetDir, `${store.currentProject.name}.js`)
-    // if file not exist, return
-    if (await exists(jsFilePath)) {
-        const jsFileContent = await readTextFile(jsFilePath)
-        jsFileContents.value = jsFileContent
-        console.log('initJsFileContents', jsFileContent)
-    }
-    jsSelOptions.value = store.currentProject.jsFile?.map((item: any) => {
-        return {
-            label: item,
-            value: item,
-        }
-    })
 }
 
 const handleKeydown = (event: KeyboardEvent) => {
@@ -2103,14 +1937,23 @@ onUnmounted(() => {
     stopServer()
     window.removeEventListener('keydown', handleKeydown)
     // clear interval
-    buildSecondTimer && clearInterval(buildSecondTimer)
-    checkDispatchTimer && clearInterval(checkDispatchTimer)
+    Object.keys(buildTimer).forEach((repo) => {
+        buildTimer[repo] && clearInterval(buildTimer[repo])
+        checkDispatchTimer[repo] && clearInterval(checkDispatchTimer[repo])
+    })
+    // clear checkDispatchTimer
+    Object.keys(checkDispatchTimer).forEach((repo) => {
+        checkDispatchTimer[repo] && clearInterval(checkDispatchTimer[repo])
+    })
 })
 
 onMounted(async () => {
     window.addEventListener('keydown', handleKeydown)
     // 重制编译时间
-    buildTime = 0
+    buildTime.PakePLus = 0
+    buildTime['PakePlus-Android'] = 0
+    buildTime['PakePlus-iOS'] = 0
+    buildTime['PWA'] = 0
     if (store.currentProject.icon) {
         confirmIcon(store.currentProject.icon)
     }
@@ -2128,15 +1971,13 @@ onMounted(async () => {
     }
     if (store.currentProject.isHtml) {
         store.currentProject.url = ''
-        ElMessage.warning('移动端暂不支持静态文件')
+        oneMessage.warning(t('phoneHtmlNo'))
     }
 })
 </script>
 
 <style lang="scss" scoped>
 .editBox {
-    width: 100%;
-    height: 100%;
     padding: 10px 20px;
 
     .configHeader {
@@ -2167,7 +2008,6 @@ onMounted(async () => {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 10px;
         position: relative;
 
         .headerTitle {
@@ -2342,8 +2182,8 @@ onMounted(async () => {
                     }
 
                     .iconPreview {
-                        width: 21px;
-                        height: 21px;
+                        width: 22px;
+                        height: 22px;
                         color: gray;
                         border: 1px dashed gray;
                         border-radius: 4px;

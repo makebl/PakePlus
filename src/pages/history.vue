@@ -6,7 +6,7 @@
         :element-loading-text="t('requesting')"
     >
         <div class="homeHeader">
-            <div>
+            <div class="headerBox">
                 <div class="headerTitle">
                     <div class="backBox" @click="router.push('/edit')">
                         <el-icon><ArrowLeft /></el-icon>
@@ -14,14 +14,14 @@
                     </div>
                     <el-divider direction="vertical" />
                     <span>
-                        {{ store.currentRelease.tag_name }}
-                        v{{ store.currentProject.version }}
+                        {{ store.currentRelease?.tag_name }}
+                        v{{ store.currentProject?.version }}
                     </span>
                 </div>
                 <div class="toolTips">
                     <div class="tipsBody">
                         {{ t('releaseNotes') }}
-                        {{ store.currentRelease.body || t('releaseBody') }}
+                        {{ store.currentRelease?.body || t('releaseBody') }}
                     </div>
                 </div>
             </div>
@@ -32,7 +32,7 @@
             </div>
         </div>
         <!-- only get latest version by tag name -->
-        <el-table :data="store.currentRelease.assets" style="width: 100%">
+        <el-table :data="store.currentRelease?.assets" style="width: 100%">
             <el-table-column :label="t('assetName')" width="460">
                 <template #default="scope">
                     <div style="display: flex; align-items: center">
@@ -53,6 +53,17 @@
                     </div>
                 </template>
             </el-table-column>
+            <!-- asset type -->
+            <el-table-column :label="t('assetType')" width="120">
+                <template #default="scope">
+                    <div style="display: flex; align-items: center">
+                        <span>
+                            {{ typeFunc(scope.row.name) }}
+                        </span>
+                    </div>
+                </template>
+            </el-table-column>
+            <!-- asset size -->
             <el-table-column :label="t('assetSize')" width="120">
                 <template #default="scope">
                     <div style="display: flex; align-items: center">
@@ -63,6 +74,7 @@
                     </div>
                 </template>
             </el-table-column>
+            <!-- publish time -->
             <el-table-column prop="updated_at" :label="t('releaseDate')" />
         </el-table>
         <!-- share and push bug -->
@@ -109,21 +121,45 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { usePakeStore } from '@/store'
+import { usePPStore } from '@/store'
 import { ArrowLeft, Delete } from '@element-plus/icons-vue'
 import githubApi from '@/apis/github'
-import { openUrl, isTauri, copyText } from '@/utils/common'
-import { ElMessage } from 'element-plus'
+import { openUrl, isTauri, copyText, oneMessage } from '@/utils/common'
 import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
-const store = usePakeStore()
+const store = usePPStore()
 const { t } = useI18n()
 
 // getLoading
 const getLoading = ref(false)
 const delDialog = ref(false)
 const delLoading = ref(false)
+
+// asset type
+const typeFunc = (name: string) => {
+    if (name.includes('.dmg')) {
+        return 'macOS'
+    } else if (
+        name.includes('.deb') ||
+        name.includes('.AppImage') ||
+        name.includes('.rpm')
+    ) {
+        return 'Linux'
+    } else if (name.includes('.exe') || name.includes('.msi')) {
+        return 'Windows'
+    } else if (name.includes('.apk')) {
+        return 'Android'
+    } else if (name.includes('.ipa')) {
+        return 'iOS'
+    } else if (name.includes('.pwa')) {
+        return 'PWA'
+    } else if (name.includes('.gz')) {
+        return t('zipFile')
+    } else {
+        return t('unknown')
+    }
+}
 
 // delete lasted release
 const deleteRelAssets = async () => {
@@ -137,7 +173,7 @@ const deleteRelAssets = async () => {
         console.log('deleteRelease', releaseRes)
         delLoading.value = false
         delDialog.value = false
-        ElMessage.success(t('delSuccess'))
+        oneMessage.success(t('delSuccess'))
         router.push('/edit?delrelease=true')
     }
     delLoading.value = false
@@ -147,7 +183,7 @@ const deleteRelAssets = async () => {
 // copy downlink
 const copyDownlink = async (asset: any) => {
     await copyText(asset.browser_download_url)
-    ElMessage.success(t('copySuccess'))
+    oneMessage.success(t('copySuccess'))
 }
 
 onMounted(async () => {
@@ -170,7 +206,6 @@ onMounted(async () => {
 }
 
 .historyBox {
-    // width: 100%;
     padding: 10px 20px;
 
     .homeHeader {
@@ -182,8 +217,12 @@ onMounted(async () => {
         margin-bottom: 10px;
         position: relative;
 
+        .headerBox {
+            flex: 1;
+        }
+
         .headerTitle {
-            width: 100%;
+            width: 95%;
             font-size: 20px;
             font-weight: bold;
             display: flex;

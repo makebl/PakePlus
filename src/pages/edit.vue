@@ -14,7 +14,7 @@
                     </div>
                     <el-divider direction="vertical" />
                     <span>
-                        {{ t('configProject') }}
+                        {{ t('exeProject') }}
                     </span>
                 </div>
                 <div class="toolTips">
@@ -44,7 +44,7 @@
                 <el-icon
                     v-if="store.isRelease"
                     @click="toHistory"
-                    :size="22"
+                    :size="25"
                     class="publish"
                 >
                     <Paperclip />
@@ -71,6 +71,9 @@
                             <el-dropdown-item @click="deleteProject">
                                 {{ t('delProject') }}
                             </el-dropdown-item>
+                            <el-dropdown-item @click="showSuperpower">
+                                {{ t('superpower') }}
+                            </el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
@@ -88,7 +91,7 @@
             >
                 <div class="inLine">
                     <el-form-item
-                        :label="t('appName')"
+                        :label="t('exeName')"
                         prop="showName"
                         class="formItem"
                     >
@@ -145,7 +148,7 @@
                 </div>
                 <div class="inLine">
                     <el-form-item
-                        :label="t('appId')"
+                        :label="t('exeId')"
                         prop="appid"
                         class="formItem"
                     >
@@ -159,7 +162,7 @@
                         />
                     </el-form-item>
                     <el-form-item
-                        :label="t('appVersion')"
+                        :label="t('exeVersion')"
                         prop="version"
                         class="formItem"
                     >
@@ -175,7 +178,7 @@
                 </div>
                 <div class="inLine checkBox">
                     <el-form-item
-                        :label="t('appIcon')"
+                        :label="t('exeIcon')"
                         prop="icon"
                         class="formItem"
                         :style="isTauri ? 'width: unset' : 'width: 13.5%'"
@@ -300,7 +303,7 @@
                 </el-form-item>
                 <el-form-item :label="t('filterElements')" prop="desc">
                     <el-input
-                        v-model.trim="store.currentProject.filterCss"
+                        v-model="store.currentProject.filterCss"
                         type="textarea"
                         autocomplete="off"
                         autoCapitalize="off"
@@ -310,9 +313,9 @@
                         :placeholder="t('inputXpathSelectors')"
                     />
                 </el-form-item>
-                <el-form-item :label="t('appDes')" prop="desc">
+                <el-form-item :label="t('exeDes')" prop="desc">
                     <el-input
-                        v-model.trim="store.currentProject.desktop.desc"
+                        v-model="store.currentProject.desktop.desc"
                         type="textarea"
                         autocomplete="off"
                         autoCapitalize="off"
@@ -329,7 +332,7 @@
             <el-button @click="preview(false)">
                 {{ t('preview') }}
             </el-button>
-            <el-button :disabled="token === null" @click="createRepo">
+            <el-button @click="createRepo">
                 {{ t('publish') }}
             </el-button>
         </div>
@@ -352,27 +355,18 @@
             >
                 <!-- platform select -->
                 <el-form-item :label="t('pubPlatform')">
-                    <el-checkbox-group v-model="pubForm.platform">
-                        <el-checkbox :label="t('desktop')" value="desktop" />
-                        <el-checkbox
-                            :label="t('mobileEnd')"
-                            value="mobile"
-                            disabled
-                        />
-                        <el-checkbox
-                            :label="t('sourceCode')"
-                            value="source"
-                            disabled
-                        />
-                    </el-checkbox-group>
+                    <el-tree-select
+                        v-model="store.currentProject.platform"
+                        :data="platData"
+                        multiple
+                        collapse-tags
+                        collapse-tags-tooltip
+                        :max-collapse-tags="3"
+                        :render-after-expand="false"
+                        show-checkbox
+                        :placeholder="t('pubPlatformTips')"
+                    />
                 </el-form-item>
-                <!-- build package selcted -->
-                <!-- <el-form-item label="目标架构">
-                    <el-radio-group v-model="pubForm.chip">
-                        <el-radio value="macos">m</el-radio>
-                        <el-radio value="debug">macos-Intel</el-radio>
-                    </el-radio-group>
-                </el-form-item> -->
                 <!-- debug -->
                 <el-form-item :label="t('pubMode')">
                     <el-radio-group
@@ -386,7 +380,7 @@
                 </el-form-item>
                 <el-form-item :label="t('releaseNotes')">
                     <el-input
-                        v-model.trim="store.currentProject.desktop.pubBody"
+                        v-model="store.currentProject.desktop.pubBody"
                         type="textarea"
                         autocomplete="off"
                         autoCapitalize="off"
@@ -471,8 +465,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { invoke } from '@tauri-apps/api/core'
 import type { ComponentSize, FormInstance, FormRules } from 'element-plus'
 import githubApi from '@/apis/github'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { usePakeStore } from '@/store'
+import { ElMessageBox } from 'element-plus'
+import { usePPStore } from '@/store'
 import {
     readFile,
     readTextFile,
@@ -518,6 +512,8 @@ import {
     replaceFileRoot,
     urlMap,
     fileSizeLimit,
+    oneMessage,
+    createIssue,
 } from '@/utils/common'
 import { platform } from '@tauri-apps/plugin-os'
 import { getCurrentWindow } from '@tauri-apps/api/window'
@@ -526,7 +522,7 @@ import ImgPreview from '@/components/ImgPreview.vue'
 
 const route = useRoute()
 const router = useRouter()
-const store = usePakeStore()
+const store = usePPStore()
 const { t } = useI18n()
 const tempIconBase64 = ref('')
 const iconBase64 = ref('')
@@ -536,7 +532,6 @@ const centerDialogVisible = ref(false)
 const formSize = ref<ComponentSize>('default')
 const appFormRef = ref<FormInstance>()
 
-const token = localStorage.getItem('token')
 const iconFileName = ref('')
 const file = ref<any>(null)
 
@@ -650,12 +645,69 @@ const appRules = reactive<FormRules>({
 
 // tip warning
 const showWarning = () => {
-    ElMessage.error(warning.value)
+    oneMessage.error(warning.value)
 }
 
 // is json config
 const isJson = ref(false)
 const tauriConfigRef = ref<any>(null)
+
+// 发布编译选项
+const value = ref()
+const platData = [
+    {
+        value: '1',
+        label: 'Windows',
+        children: [
+            {
+                value: '1-1',
+                label: 'X64',
+            },
+            {
+                value: '1-2',
+                label: 'Arm64',
+            },
+        ],
+    },
+    {
+        value: '2',
+        label: 'macOS',
+        children: [
+            {
+                value: '2-1',
+                label: 'Intel x64',
+            },
+            {
+                value: '2-2',
+                label: 'Apple Silicon',
+            },
+        ],
+    },
+    {
+        value: '3',
+        label: 'Linux',
+        children: [
+            {
+                value: '3-1',
+                label: 'X64',
+            },
+            {
+                value: '3-2',
+                label: 'Arm64',
+            },
+        ],
+    },
+    {
+        value: '4',
+        label: 'Android',
+        disabled: true,
+    },
+    {
+        value: '5',
+        label: 'iOS',
+        disabled: true,
+    },
+]
 
 // change app name
 const changeAppName = (value: string) => {
@@ -682,6 +734,11 @@ const showConfigDialog = () => {
     tauriConfigRef.value?.updateCode()
 }
 
+// show superpower
+const showSuperpower = () => {
+    router.push('/tauriapi')
+}
+
 // close tauri config dialog
 const closeConfigDialog = (done: any = () => {}) => {
     const isJson = tauriConfigRef.value?.checkJson()
@@ -689,7 +746,7 @@ const closeConfigDialog = (done: any = () => {}) => {
         configDialogVisible.value = false
         done()
     } else {
-        ElMessage.error(t('jsonError'))
+        oneMessage.error(t('jsonError'))
     }
 }
 
@@ -769,7 +826,7 @@ const loadHtml = async () => {
             store.currentProject.htmlPath = selected
             store.currentProject.more.windows.url = configUrl
         } else {
-            ElMessage.error(t('indexHtmError'))
+            oneMessage.error(t('indexHtmError'))
         }
     }
 }
@@ -791,7 +848,7 @@ const tauriHtmlUpload = async () => {
                 // limit file size
                 const fileSize = fileContent.byteLength
                 if (fileSize > fileSizeLimit) {
-                    ElMessage.error(t('limitSize'))
+                    oneMessage.error(t('limitSize'))
                     buildLoading.value = false
                     warning.value = t('limitSize')
                     return 'stop'
@@ -826,7 +883,7 @@ const activeDistInput = async () => {
         loadHtml()
     } else {
         if (!store.token) {
-            ElMessage.error(t('configToken'))
+            oneMessage.error(t('configToken'))
             return
         } else {
             distInput.value.click()
@@ -863,7 +920,7 @@ const handleFileChange = async (event: any) => {
         for (const file of files) {
             const fileSize = file.size
             if (fileSize > fileSizeLimit) {
-                ElMessage.error(t('limitSize'))
+                oneMessage.error(t('limitSize'))
                 buildLoading.value = false
                 return
             }
@@ -880,17 +937,17 @@ const handleFileChange = async (event: any) => {
                 await uploadFiles(files)
                 buildLoading.value = false
                 loadingText(t('syncFileSuccess'))
-                ElMessage.success(t('syncFileSuccess'))
+                oneMessage.success(t('syncFileSuccess'))
             } catch (error: any) {
                 console.error('uploadFiles error', error)
                 warning.value = error.message
                 buildLoading.value = false
                 loadingText(t('syncFileError'))
-                ElMessage.error(t('syncFileError'))
+                oneMessage.error(t('syncFileError'))
             }
             store.addUpdatePro(store.currentProject)
         } else {
-            ElMessage.error(t('indexHtmError'))
+            oneMessage.error(t('indexHtmError'))
             buildLoading.value = false
         }
     }
@@ -954,7 +1011,7 @@ const handleIconChange = (event: any) => {
     if (file) {
         const fileSize = file.size
         if (fileSize > fileSizeLimit) {
-            ElMessage.error(t('limitSize'))
+            oneMessage.error(t('limitSize'))
             return
         }
         fileToBase64(file)
@@ -993,7 +1050,7 @@ const uploadIcon = async () => {
     console.log('fileSize', fileSize)
     // limit file size
     if (fileSize > 1024 * 1024 * 10) {
-        ElMessage.error(t('limitSize'))
+        oneMessage.error(t('limitSize'))
         return
     }
     const base64Data: any = arrayBufferToBase64(binaryData)
@@ -1040,17 +1097,7 @@ const deleteProject = () => {
     })
         .then(() => {
             console.log('delete project')
-            githubApi.deleteBranch(
-                store.userInfo.login,
-                'PakePlus',
-                store.currentProject.name
-            )
-            githubApi.deleteBranch(
-                store.userInfo.login,
-                'PakePlus-Android',
-                store.currentProject.name
-            )
-            store.delProject(store.currentProject)
+            store.delProject(store.currentProject.name)
             router.push('/')
         })
         .catch(() => {
@@ -1095,18 +1142,18 @@ const saveProject = async (tips: boolean = true) => {
             if (configDialogVisible.value) {
                 const isJson = tauriConfigRef.value?.checkJson()
                 if (isJson) {
-                    ElMessage.success(t('saveSuccess'))
+                    oneMessage.success(t('saveSuccess'))
                 } else {
-                    ElMessage.error(t('jsonError'))
+                    oneMessage.error(t('jsonError'))
                 }
             } else {
-                tips && ElMessage.success(t('saveSuccess'))
+                tips && oneMessage.success(t('saveSuccess'))
             }
         } else {
             console.error('error submit!', fields)
             for (const key in fields) {
                 if (fields[key].length > 0) {
-                    ElMessage.error(fields[key][0].message)
+                    oneMessage.error(fields[key][0].message)
                     return
                 }
             }
@@ -1142,11 +1189,14 @@ const getInitializationScript = () => {
 
 const preview = async (resize: boolean) => {
     if (isTauri) {
+        let serverPort = 3030
         try {
-            const res = await invoke('start_server', {
-                path: store.currentProject.htmlPath,
-            })
-            console.log('Server started successfully', res)
+            if (store.currentProject.isHtml && store.currentProject.htmlPath) {
+                serverPort = await invoke('start_server', {
+                    path: store.currentProject.htmlPath,
+                })
+                console.log('Server started successfully', serverPort)
+            }
         } catch (error) {
             console.error('Failed to start server:', error)
         }
@@ -1156,7 +1206,7 @@ const preview = async (resize: boolean) => {
             platformName === 'windows' &&
             store.currentProject.more.windows.additionalBrowserArgs
         ) {
-            ElMessage.error('additionalBrowserArgs cant preview on windows')
+            oneMessage.error('additionalBrowserArgs cant preview on windows')
             return
         }
         if (
@@ -1170,7 +1220,7 @@ const preview = async (resize: boolean) => {
             store.previewSecond !== 60
         ) {
             console.log('html preview error')
-            ElMessage.error(t('htmlError'))
+            oneMessage.error(t('htmlError'))
             return
         } else {
             console.log('unknown preview error')
@@ -1193,7 +1243,7 @@ const preview = async (resize: boolean) => {
                         ...store.currentProject.more.windows,
                         label: 'PreView',
                         url: store.currentProject.isHtml
-                            ? 'http://127.0.0.1:3030/index.html'
+                            ? `http://127.0.0.1:${serverPort}/index.html`
                             : store.currentProject.url,
                     },
                     jsContent: initJsScript,
@@ -1205,7 +1255,7 @@ const preview = async (resize: boolean) => {
             }
         })
     } else {
-        ElMessage.error(t('notSupportWeb'))
+        oneMessage.error(t('notSupportWeb'))
     }
 }
 
@@ -1398,6 +1448,10 @@ const updateTauriConfig = async () => {
 
 // new publish version
 const publishWeb = async () => {
+    if (store.token === '') {
+        oneMessage.error(t('configToken'))
+        return
+    }
     centerDialogVisible.value = false
     buildLoading.value = true
     loadingText(t('preCheck') + '...')
@@ -1419,16 +1473,20 @@ const publishWeb = async () => {
         // update build.yml
         await updatePPconfig()
         // dispatch action
-        // dispatchAction()
+        dispatchAction()
     } catch (error: any) {
         warning.value = error.message
         buildTime = 0
         loadingText(t('failure'))
         buildLoading.value = false
         createIssue(
-            `publish action error: ${error.message}`,
+            store.currentProject.name,
+            store.currentProject.showName,
+            store.currentProject.isHtml,
+            'PakePlus publish action error',
             'failure',
-            'build error'
+            'build error',
+            'PakePlus'
         )
     }
 }
@@ -1436,6 +1494,8 @@ const publishWeb = async () => {
 // dispatch workflow action
 const dispatchAction = async () => {
     loadingText(t('preCompile') + 'workflow...')
+    // wait file sync
+    await new Promise((resolve) => setTimeout(resolve, 3000))
     const dispatchRes: any = await githubApi.dispatchWorkflow(
         store.userInfo.login,
         'PakePlus',
@@ -1449,7 +1509,7 @@ const dispatchAction = async () => {
             ? dispatchRes.data.message
             : dispatchRes.status
         warning.value = t('dispatchError') + ':' + message
-        ElMessage.error(warning.value)
+        oneMessage.error(warning.value)
         buildLoading.value = false
         return
     } else {
@@ -1463,7 +1523,7 @@ const dispatchAction = async () => {
                 'second'
             )}</div><div>${buildStatus}${
                 buildRate > 99 ? 99 : buildRate
-            }%...</div>`
+            }%</div>`
             // console.log('loadingText---', loadingText)
             loadingText(loadingState)
         }, 1000)
@@ -1476,20 +1536,6 @@ const dispatchAction = async () => {
     }
 }
 
-// create issue
-const createIssue = async (url: string, label: string, title: string) => {
-    console.log('createIssue', url, label, title)
-    await githubApi.createIssue({
-        body: `build name: ${store.currentProject.name}\r
-        show name: ${store.currentProject.showName}\r
-        build state: ${label}\r
-        build type: ${store.currentProject.isHtml ? 'html' : 'web'}\r
-        build client: ${isTauri ? 'tauri' : 'web'}\r
-        build action: ${url}`,
-        title: title,
-    })
-}
-
 // rerun fails jobs
 let rerunCount = 0
 const reRunFailsJobs = async (id: number, html_url: string) => {
@@ -1499,7 +1545,16 @@ const reRunFailsJobs = async (id: number, html_url: string) => {
         buildLoading.value = false
         buildTime = 0
         warning.value = 'rerun cancel and rerun count > 3'
-        createIssue(html_url, 'failure', 'build error')
+        createIssue(
+            store.currentProject.name,
+            store.currentProject.showName,
+            store.currentProject.isHtml,
+            html_url,
+            'failure',
+            'build error',
+            'PakePlus'
+        )
+        await new Promise((resolve) => setTimeout(resolve, 3000))
         openUrl(html_url)
         loadingText(t('failure'))
         buildSecondTimer && clearInterval(buildSecondTimer)
@@ -1519,6 +1574,7 @@ const reRunFailsJobs = async (id: number, html_url: string) => {
         } else {
             reRunFailsJobs(id, html_url)
         }
+        await new Promise((resolve) => setTimeout(resolve, 3000))
     }
 }
 
@@ -1538,7 +1594,17 @@ const checkBuildStatus = async () => {
     console.log('checkBuildStatus', build_runs)
     if (checkRes.status === 200 && checkRes.data.total_count > 0) {
         if (status === 'completed' && conclusion === 'success') {
-            createIssue(html_url, 'success', 'build success')
+            createIssue(
+                store.currentProject.name,
+                store.currentProject.showName,
+                store.currentProject.isHtml,
+                html_url,
+                'success',
+                'build success',
+                'PakePlus'
+            )
+            await new Promise((resolve) => setTimeout(resolve, 3000))
+            store.setCurrentRelease()
             loadingText(t('buildSuccess'))
             // clear timer
             buildSecondTimer && clearInterval(buildSecondTimer)
@@ -1547,7 +1613,16 @@ const checkBuildStatus = async () => {
             buildTime = 0
             router.push('/history')
         } else if (status === 'completed' && conclusion === 'cancelled') {
-            createIssue(html_url, 'cancelled', 'build cancelled')
+            createIssue(
+                store.currentProject.name,
+                store.currentProject.showName,
+                store.currentProject.isHtml,
+                html_url,
+                'cancelled',
+                'build cancelled',
+                'PakePlus'
+            )
+            await new Promise((resolve) => setTimeout(resolve, 3000))
             loadingText(t('cancelled'))
             buildLoading.value = false
             buildTime = 0
@@ -1556,8 +1631,10 @@ const checkBuildStatus = async () => {
             checkDispatchTimer && clearInterval(checkDispatchTimer)
         } else if (status === 'failure' || conclusion === 'failure') {
             reRunFailsJobs(id, html_url)
+            await new Promise((resolve) => setTimeout(resolve, 3000))
         } else if (status === 'completed' && conclusion === 'failure') {
             reRunFailsJobs(id, html_url)
+            await new Promise((resolve) => setTimeout(resolve, 3000))
         } else if (status === 'in_progress') {
             console.log('build in progress...')
         }
@@ -1571,6 +1648,7 @@ const checkBuildStatus = async () => {
             loadingText(t('failure'))
         } else {
             reRunFailsJobs(id, html_url)
+            await new Promise((resolve) => setTimeout(resolve, 3000))
         }
     }
 }
@@ -1613,8 +1691,8 @@ onUnmounted(() => {
 
 onMounted(async () => {
     window.addEventListener('keydown', handleKeydown)
-    // 重制编译时间
     buildTime = 0
+    rerunCount = 0
     if (store.currentProject.icon) {
         confirmIcon(store.currentProject.icon)
     }
@@ -1635,8 +1713,6 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 .editBox {
-    width: 100%;
-    height: 100%;
     padding: 10px 20px;
 
     .configHeader {
@@ -1667,7 +1743,6 @@ onMounted(async () => {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 10px;
         position: relative;
 
         .headerTitle {
@@ -1839,12 +1914,16 @@ onMounted(async () => {
                             top: -6px;
                             right: -6px;
                             cursor: pointer;
+
+                            &:hover {
+                                color: #f56c6c;
+                            }
                         }
                     }
 
                     .iconPreview {
-                        width: 21px;
-                        height: 21px;
+                        width: 22px;
+                        height: 22px;
                         color: gray;
                         border: 1px dashed gray;
                         border-radius: 4px;

@@ -5,6 +5,11 @@ import { open } from '@tauri-apps/plugin-dialog'
 import { readDir } from '@tauri-apps/plugin-fs'
 import { writeText } from '@tauri-apps/plugin-clipboard-manager'
 import { join } from '@tauri-apps/api/path'
+import { ElMessage } from 'element-plus'
+
+// upstream repo info
+export const upstreamUser = 'Sjj1024'
+export const ppRepo: string[] = ['PakePlus', 'PakePlus-Android', 'PakePlus-iOS']
 
 export const mainBranch = 'main'
 export const webBranch = 'web2'
@@ -15,6 +20,7 @@ export const fileSizeLimit = 1024 * 1024 * 10
 
 // urlMap
 export const urlMap = {
+    pakeplus: 'https://www.pakeplus.com/',
     github: 'https://github.com/Sjj1024/PakePlus',
     ppofficial: 'https://ppofficial.pages.dev/',
     configdoc: 'https://ppofficial.pages.dev/guide/config.html',
@@ -27,6 +33,12 @@ export const urlMap = {
     google: '',
     csdn: 'https://xiaoshen.blog.csdn.net/',
     juejin: 'https://juejin.cn/user/70007368988926',
+    gitee: 'https://gitee.com/xiaoshen-1024',
+    bilibili: 'https://space.bilibili.com/405719127?spm_id_from=333.33.0.0',
+    twitter: 'https://x.com/1024xiaoshen',
+    youtube: 'https://www.youtube.com/@1024xiaoshen',
+    douyin: '',
+    tiktok: '',
     windowsConfig: 'https://v2.tauri.app/reference/config/#windowconfig',
 }
 
@@ -615,7 +627,7 @@ export const base64ToArrayBuffer = (base64: string) => {
 }
 
 // arrayBufferToBase64
-export const arrayBufferToBase64 = (buffer: ArrayBuffer) => {
+export const arrayBufferToBase64 = (buffer: Uint8Array) => {
     let binary = ''
     const bytes = new Uint8Array(buffer)
     const len = bytes.byteLength
@@ -1055,4 +1067,53 @@ export const rootPath = (file: File) => {
     }
     // 替换根路径为 "src"
     return 'src' + file.webkitRelativePath.slice(firstSlashIndex)
+}
+
+// single message tips
+let messageDom: any = null
+export const oneMessage: any = (options: any) => {
+    if (messageDom) messageDom.close()
+    messageDom = ElMessage(options)
+}
+
+const typeArr = ['success', 'error', 'warning', 'info']
+typeArr.forEach((type) => {
+    oneMessage[type] = (options: any) => {
+        if (typeof options === 'string') options = { message: options }
+        options.type = type
+        return oneMessage(options)
+    }
+})
+
+// djb2 hash
+export const djb2Hash = (str: string) => {
+    // 初始种子
+    let hash = 5381
+    for (let i = 0; i < str.length; i++) {
+        hash = (hash * 33) ^ str.charCodeAt(i)
+    }
+    return hash >>> 0
+}
+
+// create issue
+export const createIssue = async (
+    name: string,
+    showName: string,
+    isHtml: boolean,
+    url: string,
+    label: string,
+    title: string,
+    repo: string
+) => {
+    console.log('createIssue', url, label, title)
+    await githubApi.createIssue({
+        body: `build name: ${name}\r
+        show name: ${showName}\r
+        build state: ${label}\r
+        build type: ${isHtml ? 'html' : 'web'}\r
+        client type: ${repo}\r
+        pakeplus type: ${isTauri ? 'tauri' : 'web'}\r
+        build action: ${url}`,
+        title: title,
+    })
 }

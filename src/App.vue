@@ -94,19 +94,28 @@ window
         chageTheme(newTheme)
     })
 
+// global error
+window.onerror = function (message, source, lineno, colno, error) {
+    console.error('global error:', { message, source, lineno, colno, error })
+    return false
+}
+
 onMounted(() => {
     initEnv()
 })
 </script>
 
 <template>
-    <div class="container" :class="{ isTauri: isTauri }">
+    <div class="container" :class="{ isTauri: isTauri, webBox: !isTauri }">
         <router-view></router-view>
     </div>
 </template>
 
 <style scoped lang="scss">
-.isTauri {
-    padding-top: 5px;
+.webBox {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
 }
 </style>

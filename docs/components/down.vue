@@ -1,7 +1,7 @@
 <template>
     <div class="downBox">
         <div class="title">我应该使用哪个版本？</div>
-        <div class="platform">
+        <div class="platform mac">
             <div class="leftIcon">
                 <svg
                     t="1742708135449"
@@ -23,20 +23,25 @@
             <div class="rightContent">
                 <h1 class="title">MacOS</h1>
                 <div class="item">
-                    <a :href="macArm.browser_download_url">
-                        点击下载ARM(M芯片)版本
+                    <a :href="proxyGithub(macArm.browser_download_url)">
+                        ARM(M芯片)版本
                     </a>
                 </div>
                 <div class="item">
-                    <a :href="macX64.browser_download_url">
-                        点击下载 Intel芯片 版本
+                    <a :href="proxyGithub(macX64.browser_download_url)">
+                        Intel芯片 版本
                     </a>
                 </div>
             </div>
         </div>
-        <div class="platform">
+        <div class="platform windows">
             <div class="leftIcon">
-                <svg
+                <img
+                    src="../static/imgs/windowslogo.png"
+                    alt="windows"
+                    class="winLogo"
+                />
+                <!-- <svg
                     t="1742708953461"
                     class="icon"
                     viewBox="0 0 1024 1024"
@@ -52,25 +57,30 @@
                         fill-opacity=".85"
                         p-id="1665"
                     ></path>
-                </svg>
+                </svg> -->
             </div>
             <div class="rightContent">
                 <h1 class="title">Windows</h1>
                 <div class="item">
-                    <a :href="windowsX64.browser_download_url">
-                        点击下载 X64 版本
+                    <a :href="proxyGithub(windowsX64.browser_download_url)">
+                        X64 版本
                     </a>
                 </div>
                 <div class="item">
-                    <a :href="windowsArm64.browser_download_url">
-                        点击下载 ARM64 版本
+                    <a :href="proxyGithub(windowsArm64.browser_download_url)">
+                        ARM64 版本
                     </a>
                 </div>
             </div>
         </div>
-        <div class="platform">
+        <div class="platform linux">
             <div class="leftIcon">
-                <svg
+                <img
+                    src="../static/imgs/linuxlogo.png"
+                    alt="linux"
+                    class="linuxLogo"
+                />
+                <!-- <svg
                     t="1742708821867"
                     class="icon"
                     viewBox="0 0 1024 1024"
@@ -85,29 +95,29 @@
                         fill="#2C2C2C"
                         p-id="1635"
                     ></path>
-                </svg>
+                </svg> -->
             </div>
             <div class="rightContent">
                 <h1 class="title">Linux</h1>
                 <div class="item">
-                    <a :href="linuxDeb.browser_download_url">
-                        点击下载 dep 版本
+                    <a :href="proxyGithub(linuxDeb.browser_download_url)">
+                        deb 版本
                     </a>
                 </div>
                 <div class="item">
-                    <a :href="linuxRpm.browser_download_url">
-                        点击下载 rpm 版本
+                    <a :href="proxyGithub(linuxRpm.browser_download_url)">
+                        rpm 版本
                     </a>
                 </div>
                 <div class="item">
-                    <a :href="linuxImage.browser_download_url">
-                        点击下载 AppImage 版本
+                    <a :href="proxyGithub(linuxImage.browser_download_url)">
+                        AppImage 版本
                     </a>
                 </div>
             </div>
         </div>
-        <div class="platform">
-            <div class="leftIcon">
+        <div class="platform web">
+            <div class="leftIcon cloud-icon">
                 <svg
                     t="1742721374498"
                     class="icon"
@@ -138,7 +148,7 @@
                     </a>
                 </div>
                 <div class="item">
-                    <span> 不推荐，因为是bate版本 </span>
+                    <span> 不推荐，因为是beta版本 </span>
                 </div>
             </div>
         </div>
@@ -350,6 +360,7 @@ const lastRelease = data[0] || {
 const macArm = lastRelease.assets.find((asset) =>
     asset.name.includes('aarch64.dmg')
 )
+
 const macX64 = lastRelease.assets.find((asset) =>
     asset.name.includes('x64.dmg')
 )
@@ -373,6 +384,19 @@ const linuxRpm = lastRelease.assets.find((asset) =>
 const linuxImage = lastRelease.assets.find((asset) =>
     asset.name.includes('amd64.AppImage')
 )
+
+// 替换github.com为github.pakeplus.com
+const proxyGithub = (url) => {
+    const newURL = url.replace('github.com', 'github.pakeplus.com/gh')
+    console.log('newURL', newURL)
+    return newURL
+}
+
+const isMobile = () => {
+    return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+        navigator.userAgent.toLowerCase()
+    )
+}
 </script>
 
 <style scoped lang="scss">
@@ -389,21 +413,87 @@ const linuxImage = lastRelease.assets.find((asset) =>
         font-size: 30px;
     }
 
+    .mac {
+        // background: linear-gradient(
+        //     135deg,
+        //     rgba(144, 169, 213, 0.8),
+        //     rgba(230, 210, 255, 0.6)
+        // );
+        // filter: blur(1px);
+
+        box-shadow: 0 0 10px rgba(200, 220, 255, 0.8),
+            0 0 20px rgba(230, 210, 255, 0.6);
+
+        &:hover {
+            // box-shadow: var(--vp-c-text-1) 0px 0px 10px;
+            box-shadow: 0 0 15px rgba(200, 220, 255, 0.8),
+                0 0 25px rgba(230, 210, 255, 0.6);
+        }
+    }
+
+    .windows {
+        // background: linear-gradient(
+        //     45deg,
+        //     rgba(0, 120, 215, 0.6),
+        //     rgba(105, 0, 255, 0.3)
+        // );
+
+        box-shadow: 0 0 10px rgba(0, 120, 215, 0.3),
+            0 0 20px rgba(105, 0, 255, 0.3);
+
+        &:hover {
+            // box-shadow: var(--vp-c-text-1) 0px 0px 10px;
+            box-shadow: 0 0 20px rgba(0, 120, 215, 0.3),
+                0 0 30px rgba(105, 0, 255, 0.3);
+        }
+    }
+
+    .linux {
+        // background: linear-gradient(
+        //     45deg,
+        //     rgba(255, 140, 0, 0.3),
+        //     rgba(0, 200, 80, 0.2)
+        // );
+
+        box-shadow: 0 0 10px rgba(255, 140, 0, 0.3),
+            0 0 20px rgba(0, 200, 80, 0.3);
+        &:hover {
+            // box-shadow: var(--vp-c-text-1) 0px 0px 10px;
+            box-shadow: 0 0 20px rgba(255, 140, 0, 0.3),
+                0 0 30px rgba(0, 200, 80, 0.3);
+        }
+    }
+
+    .web {
+        // background: linear-gradient(
+        //     135deg,
+        //     rgba(100, 120, 255, 0.3),
+        //     rgba(0, 200, 220, 0.3)
+        // );
+
+        box-shadow: 0 0 10px rgba(100, 120, 255, 0.3),
+            0 0 20px rgba(0, 200, 220, 0.3);
+        &:hover {
+            // box-shadow: var(--vp-c-text-1) 0px 0px 10px;
+            box-shadow: 0 0 20px rgba(100, 120, 255, 0.3),
+                0 0 30px rgba(0, 200, 220, 0.3);
+        }
+    }
+
     .platform {
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        border: 1px solid var(--vp-c-text-1);
         border-radius: 10px;
         padding: 20px;
         width: 70%;
         height: 160px;
-        transition: all 0.5s ease;
+        transition: all 0.3s ease;
+        // border: 1px solid var(--vp-c-text-1);
 
         &:hover {
-            background-color: var(--vp-c-bg-soft);
-            box-shadow: var(--vp-c-text-1) 0px 0px 10px;
+            transform: translateY(-1px);
         }
 
         .leftIcon {
@@ -417,6 +507,49 @@ const linuxImage = lastRelease.assets.find((asset) =>
                     fill: var(--vp-c-text-1);
                 }
             }
+
+            .winLogo {
+                width: 80%;
+                height: 80%;
+            }
+
+            .linuxLogo {
+                width: 80%;
+                height: 80%;
+            }
+        }
+
+        .cloud-icon {
+            position: relative;
+        }
+
+        .cloud-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .cloud-icon path {
+            fill: #f0f0f0; /* 基础颜色 */
+        }
+
+        /* 使用伪元素叠加渐变 */
+        .cloud-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(
+                circle at 30% 30%,
+                rgba(255, 255, 255, 0.9) 0%,
+                rgba(240, 240, 240, 0.7) 50%,
+                rgba(220, 220, 220, 0.5) 100%
+            );
+            -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1565 1024"><path d="M1206.51 299.33c-27.36 0-53.87 3.35-79.47 9.12C1078.55 130.79 916.43 0 723.4 0c-231.33 0-418.82 187.49-418.82 418.79 0 16.02 1.11 31.79 2.87 47.35-9.15-0.88-18.4-1.4-27.81-1.4C125.22 464.74 0 589.93 0 744.37s125.22 279.63 279.63 279.63c134.93 0 782.15 0 926.85 0 197.95 0 358.41-168.34 358.41-366.29 0-197.95-160.46-358.41-358.41-358.41z"/></svg>');
+            mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1565 1024"><path d="M1206.51 299.33c-27.36 0-53.87 3.35-79.47 9.12C1078.55 130.79 916.43 0 723.4 0c-231.33 0-418.82 187.49-418.82 418.79 0 16.02 1.11 31.79 2.87 47.35-9.15-0.88-18.4-1.4-27.81-1.4C125.22 464.74 0 589.93 0 744.37s125.22 279.63 279.63 279.63c134.93 0 782.15 0 926.85 0 197.95 0 358.41-168.34 358.41-366.29 0-197.95-160.46-358.41-358.41-358.41z"/></svg>');
+            mask-repeat: no-repeat;
+            mask-size: 100% 100%;
         }
 
         .rightContent {
